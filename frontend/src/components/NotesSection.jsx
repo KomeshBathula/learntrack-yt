@@ -32,6 +32,7 @@ const NotesSection = ({ playlistId, videoId }) => {
             await api.post('/api/notes', { playlistId, videoId, content: note });
             setLastSaved(new Date());
         } catch (error) {
+            console.error(error);
             alert('Failed to save note');
         } finally {
             setSaving(false);

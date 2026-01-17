@@ -35,7 +35,6 @@ exports.updateProgress = async (req, res) => {
             }
         }
 
-        res.json(progress);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

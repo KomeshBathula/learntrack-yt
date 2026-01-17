@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 export default function MiniPlayer({ video, isPlayingProp = false, onClose, onNext, onPrev, onTogglePlay }) {
   const [isPlaying, setIsPlaying] = useState(isPlayingProp);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setIsPlaying(isPlayingProp), [isPlayingProp]);
 
   if (!video) return null;

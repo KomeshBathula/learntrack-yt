@@ -3,16 +3,17 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import YouTube from 'react-youtube';
 import api from '../utils/api';
 import ProgressBar from '../components/ProgressBar';
-import StudyHeatmap from '../components/StudyHeatmap';
 import NotesSection from '../components/NotesSection';
 import { CheckCircle, Circle, Trash2, ArrowLeft, Play } from 'lucide-react';
 import { clsx } from 'clsx';
+import { useAuth } from '../context/AuthContext';
 
 const PlaylistDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const initialVideoId = searchParams.get('videoId');
+    const { updateUser } = useAuth();
 
     const [playlist, setPlaylist] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -44,6 +45,7 @@ const PlaylistDetail = () => {
 
     useEffect(() => {
         fetchPlaylist();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
     // scroll to active video whenever playlist loads or activeVideoId changes
@@ -136,6 +138,8 @@ const PlaylistDetail = () => {
     const handleStatusUpdate = async (videoId, currentStatus) => {
         const newStatus = currentStatus === 'COMPLETED' ? 'NOT_STARTED' : 'COMPLETED';
 
+        const video = playlist.videos.find(v => v.videoId === videoId);
+
         setPlaylist(prev => ({
             ...prev,
             videos: prev.videos.map(v => v.videoId === videoId ? { ...v, status: newStatus } : v)
@@ -147,6 +151,16 @@ const PlaylistDetail = () => {
                 videoId,
                 status: newStatus
             });
+            if (newStatus === 'COMPLETED') {
+                updateUser({
+                    lastActiveVideo: {
+                        playlistId: id,
+                        videoId,
+                        title: video.title,
+                        thumbnail: video.thumbnail,
+                    }
+                });
+            }
         } catch (error) {
             console.error('Failed to update progress', error);
         }
@@ -158,6 +172,7 @@ const PlaylistDetail = () => {
                 await api.delete(`/api/playlists/${id}`);
                 navigate('/');
             } catch (error) {
+                console.error(error);
                 alert('Error deleting playlist');
             }
         }
@@ -232,9 +247,6 @@ const PlaylistDetail = () => {
                             <p className="text-zinc-500 text-sm line-clamp-3">{activeVideo.description}</p>
                         </div>
                     )}
-
-                    {/* Simple Playlist-Specific Heatmap */}
-                    <StudyHeatmap playlistId={id} />
 
                     {/* Notes Section */}
                     {activeVideoId && (

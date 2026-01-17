@@ -12,7 +12,7 @@ const Layout = ({ children }) => {
 
     useEffect(() => {
         window.showMiniPlayer = (video) => setMiniVideo(video);
-        return () => { try { delete window.showMiniPlayer; } catch (e) {} };
+        return () => { try { delete window.showMiniPlayer; } catch { /* ignore */ } };
     }, []);
 
     const handleLogout = () => {
@@ -60,9 +60,9 @@ const Layout = ({ children }) => {
             <MiniPlayer
                 video={miniVideo}
                 onClose={() => setMiniVideo(null)}
-                onNext={() => {}}
-                onPrev={() => {}}
-                onTogglePlay={() => {}}
+                onNext={() => { }}
+                onPrev={() => { }}
+                onTogglePlay={() => { }}
             />
         </div>
     );
