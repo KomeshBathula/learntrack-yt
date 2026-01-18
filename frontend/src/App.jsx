@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import PlaylistDetail from './pages/PlaylistDetail';
+import Profile from './pages/Profile';
 import Layout from './components/Layout';
 
 const ProtectedRoute = ({ children }) => {
@@ -31,6 +32,14 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <PlaylistDetail />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <Layout>
+              <Profile />
             </Layout>
           </ProtectedRoute>
         } />

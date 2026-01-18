@@ -1,9 +1,17 @@
 const express = require('express');
-const { registerUser, loginUser } = require('../controllers/authController');
+const { registerUser, loginUser, getMe, updateProfile } = require('../controllers/authController');
+const { protect } = require('../middleware/authMiddleware');
 const router = express.Router();
+
+console.log('LOADING AUTH ROUTES...');
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
-router.get('/me', require('../middleware/authMiddleware').protect, require('../controllers/authController').getMe);
+router.get('/me', protect, getMe);
+router.put('/profile', protect, updateProfile);
+
+// Duplicate as POST for debugging
+router.post('/profile-post', protect, updateProfile);
+router.post('/profile-no-auth', updateProfile);
 
 module.exports = router;

@@ -35,6 +35,8 @@ app.get('/', (req, res) => {
     res.send('LearnTrackYT API is running...');
 });
 
+app.get('/api/test', (req, res) => res.send('API WORKS'));
+
 // Import Routes
 const authRoutes = require('./routes/authRoutes');
 const playlistRoutes = require('./routes/playlistRoutes');

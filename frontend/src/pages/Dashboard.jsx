@@ -45,7 +45,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex gap-8">
+    <div className="flex flex-col lg:flex-row gap-8">
       <div className="flex-1 animate-fade-in space-y-8">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
@@ -155,7 +155,7 @@ const Dashboard = () => {
           </div>
         )}
       </div>
-      <div className="w-full md:w-auto">
+      <div className="w-full lg:w-auto">
         <StudyHeatmap />
       </div>
     </div>
