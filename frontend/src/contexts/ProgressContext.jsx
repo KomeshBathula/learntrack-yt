@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 const KEY = "lt_progress_v1";
 const ProgressContext = createContext(null);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useProgress = () => useContext(ProgressContext);
 
 function readStore() {

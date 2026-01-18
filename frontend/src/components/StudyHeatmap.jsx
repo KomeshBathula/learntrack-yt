@@ -1,155 +1,190 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Flame } from "lucide-react";
-
+import React, { useState, useEffect } from "react";
+import {
+  format,
+  addMonths,
+  subMonths,
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+  isSameMonth,
+  isSameDay,
+  differenceInCalendarDays,
+  parseISO,
+  isFuture,
+} from "date-fns";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import api from "../utils/api";
 
-const StudyHeatmap = ({ days = 30, playlistId = null }) => {
-  const [activityMap, setActivityMap] = useState({});
-  const [loading, setLoading] = useState(true);
+const StudyHeatmap = () => {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [activity, setActivity] = useState([]);
+
+
+  const fetchActivity = async () => {
+
+    try {
+      const { data } = await api.get("/api/progress/heatmap");
+      setActivity(data);
+    } catch (error) {
+      console.error("Failed to fetch activity", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchHeatmap = async () => {
-      try {
-        const url = playlistId
-          ? `/api/progress/heatmap?playlistId=${playlistId}`
-          : '/api/progress/heatmap';
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchActivity();
+  }, []);
 
-        const { data } = await api.get(url);
+  const calculateStreaks = (activity) => {
+    if (activity.length === 0) {
+      return { currentStreak: 0, longestStreak: 0 };
+    }
 
-        // Convert array [{date, count}] to map {date: count}
-        const map = {};
-        data.forEach(item => {
-          map[item.date] = item.count;
-        });
-        setActivityMap(map);
-      } catch (error) {
-        console.error("Failed to fetch heatmap", error);
-      } finally {
-        setLoading(false);
+    const sortedActivity = activity
+      .map((a) => ({ ...a, date: parseISO(a.date) }))
+      .sort((a, b) => a.date - b.date);
+
+    let longestStreak = 0;
+    let currentStreak = 0;
+    let tempStreak = 0;
+
+    for (let i = 0; i < sortedActivity.length; i++) {
+      if (i > 0) {
+        const diff = differenceInCalendarDays(
+          sortedActivity[i].date,
+          sortedActivity[i - 1].date
+        );
+        if (diff === 1) {
+          tempStreak++;
+        } else {
+          longestStreak = Math.max(longestStreak, tempStreak);
+          tempStreak = 1;
+        }
+      } else {
+        tempStreak = 1;
       }
-    };
+    }
+    longestStreak = Math.max(longestStreak, tempStreak);
 
-    fetchHeatmap();
-  }, [playlistId]);
+    const today = new Date();
+    const lastActivityDate = sortedActivity[sortedActivity.length - 1].date;
+    const diffFromToday = differenceInCalendarDays(today, lastActivityDate);
 
-  // Helper
-  const formatDate = (d) => d.toISOString().slice(0, 10);
-  const bgFromNorm = (norm) => {
-    const hue = 140;
-    const sat = 60;
-    const light = Math.round(88 - norm * 50);
-    return `hsl(${hue} ${sat}% ${light}%)`;
+    if (diffFromToday <= 1) {
+      currentStreak = tempStreak;
+    } else {
+      currentStreak = 0;
+    }
+
+    return { currentStreak, longestStreak };
   };
-  const DAY_MS = 24 * 60 * 60 * 1000;
 
-  // build dates oldest -> newest
-  const today = new Date();
-  const dates = [];
-  for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(today.getTime() - i * DAY_MS);
-    const key = formatDate(d);
-    dates.push({ date: d, key, count: activityMap[key] || 0 });
-  }
+  const handlePrevMonth = () => {
+    setCurrentMonth(subMonths(currentMonth, 1));
+  };
 
-  const maxCount = Math.max(1, ...dates.map((d) => d.count));
-  // compute streak (consecutive days ending today with activity)
-  let streak = 0;
-  for (let i = dates.length - 1; i >= 0; i--) {
-    // If today has 0, streak is 0? Or should we check yesterday?
-    // Let's assume strict streak (needs activity today or yesterday if today not over)
-    if (dates[i].count > 0) streak++;
-    else if (i === dates.length - 1 && dates[i].count === 0) continue; // Allow 0 for today if just started
-    else break;
-  }
+  const handleNextMonth = () => {
+    setCurrentMonth(addMonths(currentMonth, 1));
+  };
 
-  const breakIdx = streak > 0 ? dates.length - 1 - streak : -1;
+  const renderHeader = () => {
+    return (
 
-  if (loading) return <div className="animate-pulse h-10 w-40 bg-white/5 rounded-full" />;
+      <div className="flex justify-between items-center mb-4 gap-2">
+        <button onClick={handlePrevMonth} className="p-2 rounded-full hover:bg-white/10 transition-colors">
+          <ChevronLeft size={20} />
+        </button>
+        <h3 className="text-base font-bold text-white tracking-wide">
+          {format(currentMonth, "MMMM yyyy")}
+        </h3>
+        <button onClick={handleNextMonth} className="p-2 rounded-full hover:bg-white/10 transition-colors">
+          <ChevronRight size={20} />
+        </button>
+      </div>
+    );
+  };
 
-  const hasAny = Object.values(activityMap).some((v) => v > 0);
+  const renderDays = () => {
+    const daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"];
+    return (
+      <div className="grid grid-cols-7 gap-2 text-center text-xs font-medium text-zinc-500 mb-2">
+        {daysOfWeek.map((day, i) => (
+          <div key={i}>{day}</div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderCells = () => {
+    const monthStart = startOfMonth(currentMonth);
+    const monthEnd = endOfMonth(monthStart);
+    const startDate = startOfWeek(monthStart);
+    const endDate = endOfWeek(monthEnd);
+    const days = eachDayOfInterval({ start: startDate, end: endDate });
+
+    return (
+      <div className="grid grid-cols-7 gap-1.5">
+        {days.map((day) => {
+          const activityOnDay = activity.find((a) =>
+            isSameDay(parseISO(a.date), day)
+          );
+          const count = activityOnDay ? activityOnDay.count : 0;
+
+          return (
+            <div
+              key={day}
+              className={`aspect-square w-full rounded-lg flex items-center justify-center text-xs font-semibold transition-all duration-300 ${!isSameMonth(day, monthStart)
+                ? "bg-transparent text-transparent"
+                : count > 0
+                  ? "bg-green-500/20 text-green-400 shadow-[0_0_12px_-3px_rgba(74,222,128,0.3)] border border-green-500/30"
+                  : "bg-white/5 text-zinc-500 hover:bg-white/10"
+                }`}
+            >
+              {isSameMonth(day, monthStart) ? (
+                isFuture(day) ? (
+                  ""
+                ) : count > 0 ? (
+                  count
+                ) : (
+                  <span className="text-base opacity-40 grayscale hover:grayscale-0 transition-all">😭</span>
+                )
+              ) : (
+                ""
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderStreak = () => {
+    const { currentStreak, longestStreak } = calculateStreaks(activity);
+
+    return (
+      <div className="mt-4 pt-4 border-t border-white/5 flex justify-center items-center gap-8">
+        <div className="text-center group">
+          <p className="text-2xl font-bold text-white group-hover:text-primary transition-colors">{currentStreak}</p>
+          <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mt-1">Current Streak</p>
+        </div>
+        <div className="w-px h-10 bg-gradient-to-b from-transparent via-white/20 to-transparent"></div>
+        <div className="text-center group">
+          <p className="text-2xl font-bold text-white group-hover:text-secondary transition-colors">{longestStreak}</p>
+          <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mt-1">Longest Streak</p>
+        </div>
+      </div>
+
+    );
+  };
 
   return (
-    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-      <div
-        style={{
-          display: "flex",
-          gap: 12,
-          padding: "8px 12px",
-          borderRadius: 999,
-          border: "1px solid rgba(255,255,255,0.06)",
-          alignItems: "center",
-          background:
-            streak > 0 ? "rgba(255,140,60,0.06)" : "rgba(255,255,255,0.02)",
-        }}
-      >
-        <Flame style={{ color: streak > 0 ? "#fb923c" : "#94a3b8" }} />
-        <div style={{ lineHeight: 1 }}>
-          <div style={{ fontWeight: 700 }}>{streak}d streak</div>
-          <div style={{ fontSize: 12, color: "rgba(148,163,184,1)" }}>
-            Last {days} days
-          </div>
-        </div>
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <div
-          aria-hidden
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(10, 22px)",
-            gap: 6,
-          }}
-        >
-          {dates.map((d, idx) => {
-            const active = d.count > 0;
-            const isBreak = idx === breakIdx && !active && streak > 0;
-            const norm = Math.min(1, d.count / maxCount);
-            const bg = active ? bgFromNorm(norm) : "rgba(255,255,255,0.03)";
-            return (
-              <div
-                key={d.key}
-                title={`${d.key} • ${d.count} item(s)`}
-                style={{
-                  width: 22,
-                  height: 22,
-                  borderRadius: 4,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: isBreak ? 14 : 11,
-                  transform: "translateZ(0)",
-                  transition: "transform .12s ease, box-shadow .12s ease",
-                  cursor: "default",
-                  background: bg,
-                  color: norm > 0.6 ? "#fff" : "rgba(255,255,255,0.75)",
-                  border: isBreak
-                    ? "2px solid rgba(255,80,80,0.95)"
-                    : "1px solid rgba(255,255,255,0.03)",
-                  boxShadow: isBreak
-                    ? "0 4px 10px rgba(255,80,80,0.12)"
-                    : undefined,
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.transform = "scale(1.08)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.transform = "scale(1)")
-                }
-              >
-                {isBreak ? "😭" : d.count > 0 ? d.count : ""}
-              </div>
-            );
-          })}
-        </div>
-
-        {!hasAny ? (
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <div style={{ color: "rgba(148,163,184,1)", fontSize: 13 }}>
-              No activity yet — watch some videos!
-            </div>
-          </div>
-        ) : null}
-      </div>
+    <div className="bg-surface/50 backdrop-blur-sm p-5 rounded-3xl border border-white/10 w-full max-w-[300px] mx-auto shadow-2xl">
+      {renderHeader()}
+      {renderDays()}
+      {renderCells()}
+      {renderStreak()}
     </div>
   );
 };

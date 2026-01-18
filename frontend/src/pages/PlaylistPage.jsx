@@ -41,7 +41,7 @@ const PlaylistPage = () => {
             break;
           }
           // small delay to allow context/async load
-          // eslint-disable-next-line no-await-in-loop
+
           await new Promise((res) => setTimeout(res, 120));
         }
       }
@@ -84,7 +84,9 @@ const PlaylistPage = () => {
               block: "start",
             });
             listRef.current.scrollTop = itemRefs.current[index].offsetTop;
-          } catch {}
+          } catch (e) {
+            console.debug(e);
+          }
         }
       }, 80);
       return () => clearTimeout(t);
