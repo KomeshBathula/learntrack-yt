@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Home } from 'lucide-react';
+import { LogOut, Home, User } from 'lucide-react';
 import MiniPlayer from './MiniPlayer';
 
 const Layout = ({ children }) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [miniVideo, setMiniVideo] = useState(null);
 
@@ -49,12 +50,22 @@ const Layout = ({ children }) => {
             </main>
 
             {/* Mobile Bottom Nav (Optional but good for mobile-first) */}
-            <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-surface border-t border-white/5 flex items-center justify-around z-40">
-                <button onClick={() => navigate('/')} className="flex flex-col items-center gap-1 text-primary">
+            <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-surface border-t border-white/5 flex items-center justify-around z-40 safe-area-bottom">
+                <button
+                    onClick={() => navigate('/')}
+                    className={`flex flex-col items-center gap-1 transition-colors ${location.pathname === '/' ? 'text-primary' : 'text-zinc-500 hover:text-zinc-300'}`}
+                >
                     <Home size={24} />
-                    <span className="text-xs">Home</span>
+                    <span className="text-xs font-medium">Home</span>
                 </button>
-                {/* Could add more tabs like 'Profile' or 'Search' */}
+
+                <button
+                    onClick={() => navigate('/profile')}
+                    className={`flex flex-col items-center gap-1 transition-colors ${location.pathname === '/profile' ? 'text-primary' : 'text-zinc-500 hover:text-zinc-300'}`}
+                >
+                    <User size={24} />
+                    <span className="text-xs font-medium">Profile</span>
+                </button>
             </div>
 
             <MiniPlayer

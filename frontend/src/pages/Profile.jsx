@@ -80,12 +80,12 @@ const Profile = () => {
                         </div>
                     ) : (
                         <div className="flex items-center justify-center md:justify-start gap-3 group">
-                            <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-zinc-400">
+                            <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-zinc-400 text-center">
                                 {user?.username}
                             </h1>
                             <button
                                 onClick={() => setIsEditing(true)}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-white/10 rounded-lg text-zinc-400 hover:text-white"
+                                className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-2 hover:bg-white/10 rounded-lg text-zinc-400 hover:text-white"
                             >
                                 <Edit2 size={16} />
                             </button>
@@ -150,7 +150,7 @@ const Profile = () => {
                 )}
             </div>
 
-        </div>
+        </div >
     );
 };
 
