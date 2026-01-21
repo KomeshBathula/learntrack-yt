@@ -55,7 +55,7 @@ const GrokChat = ({ isOpen, onClose }) => {
                     initial={{ opacity: 0, y: 20, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                    className="fixed bottom-20 md:bottom-24 right-4 md:right-6 z-50 w-[92vw] md:w-[400px] h-[60vh] md:h-[500px] bg-surface/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+                    className="fixed bottom-20 md:bottom-24 right-4 md:right-6 z-50 w-[92vw] md:w-[400px] h-[60vh] md:h-[500px] bg-surface/95 backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-2xl flex flex-col overflow-hidden"
                 >
                     {/* Header */}
                     <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/5">

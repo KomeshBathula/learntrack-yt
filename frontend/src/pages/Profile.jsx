@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
-import DetailedHeatmap from '../components/DetailedHeatmap';
-import { User, Edit2, Check, X, Shield, Award, Calendar, Zap, TrendingUp, Settings } from 'lucide-react';
+import StudyHeatmap from '../components/StudyHeatmap';
+import { User, Edit2, Check, X, Shield, Award, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
 
 const Profile = () => {
-    const { user } = useAuth();
+    const { user, updateUser } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     const [newUsername, setNewUsername] = useState(user?.username || '');
     const [completedPlaylists, setCompletedPlaylists] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [updating, setUpdating] = useState(false);
 
     useEffect(() => {
         fetchCompletedPlaylists();
@@ -32,13 +33,21 @@ const Profile = () => {
     };
 
     const handleUpdateProfile = async () => {
+        if (!newUsername.trim()) return;
+        setUpdating(true);
         try {
+            // Ensure api.put returns the updated user object
             const { data } = await api.put('/api/auth/profile', { username: newUsername });
-            const updatedUser = { ...user, username: data.username };
-            localStorage.setItem('user', JSON.stringify(updatedUser));
-            window.location.reload();
+
+            // Use context to update the app state gracefully without reload
+            updateUser(data);
+
         } catch (error) {
-            alert('Failed to update profile');
+            console.error("Update failed:", error);
+            alert(error.response?.data?.message || 'Failed to update profile');
+        } finally {
+            setUpdating(false);
+            setIsEditing(false);
         }
     };
 
@@ -145,43 +154,25 @@ const Profile = () => {
                     <div className="hidden md:flex flex-col gap-4 min-w-[200px] border-l border-white/5 pl-8">
                         <div className="text-right">
                             <p className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Level</p>
-                            <p className="text-3xl font-bold text-white">Novice</p>
+                            <p className="text-3xl font-bold text-white">
+                                {(completedPlaylists.length < 1) ? "Novice" :
+                                    (completedPlaylists.length < 5) ? "Scholar" : "Master"}
+                            </p>
                         </div>
                         <div className="text-right">
-                            <p className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Streak</p>
+                            <p className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Courses</p>
                             <div className="flex items-center justify-end gap-1 text-orange-500 font-bold text-xl">
-                                <Zap size={20} fill="currentColor" /> 12 Days
+                                <Award size={20} fill="currentColor" /> {completedPlaylists.length} Done
                             </div>
                         </div>
                     </div>
                 </div>
             </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* 2. Heatmap Panel - Main Focus */}
-                <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6">
-                    <div className="glass-card rounded-[2rem] p-6 border border-white/5 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-6 opacity-50">
-                            <TrendingUp size={100} className="text-white/5" />
-                        </div>
-
-                        <div className="flex items-center justify-between mb-8 relative z-10">
-                            <div>
-                                <h3 className="text-xl font-bold flex items-center gap-2 text-white">
-                                    <TrendingUp className="text-green-400" size={20} />
-                                    Consistency Graph
-                                </h3>
-                                <p className="text-zinc-500 text-sm mt-1">Your daily learning momentum visualization</p>
-                            </div>
-                            <div className="bg-white/5 px-4 py-1.5 rounded-full text-xs font-medium text-zinc-300 border border-white/5">
-                                2026 Year View
-                            </div>
-                        </div>
-
-                        <div className="overflow-x-auto pb-4 custom-scrollbar">
-                            <DetailedHeatmap />
-                        </div>
-                    </div>
+                <motion.div variants={itemVariants} className="">
+                    <StudyHeatmap />
                 </motion.div>
 
                 {/* 3. Achievements / Stats Side Panel */}
@@ -224,10 +215,17 @@ const Profile = () => {
                         <div className="pt-6 mt-6 border-t border-white/5">
                             <div className="flex justify-between items-center text-sm">
                                 <span className="text-zinc-500">Total Hours</span>
-                                <span className="text-white font-mono">124.5h</span>
+                                <span className="text-white font-mono">
+                                    {(completedPlaylists.length > 0
+                                        ? completedPlaylists.reduce((acc, pl) => acc + (pl.totalDurationSeconds || 0), 0) / 3600
+                                        : 0).toFixed(1)}h
+                                </span>
                             </div>
                             <div className="w-full bg-white/5 h-1.5 rounded-full mt-2 overflow-hidden">
-                                <div className="bg-gradient-to-r from-primary to-secondary w-3/4 h-full rounded-full" />
+                                <div
+                                    className="bg-gradient-to-r from-primary to-secondary h-full rounded-full transition-all duration-1000"
+                                    style={{ width: `${Math.min(((completedPlaylists.length / 10) * 100), 100)}%` }}
+                                />
                             </div>
                         </div>
                     </div>

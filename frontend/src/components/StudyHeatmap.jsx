@@ -81,12 +81,12 @@ const StudyHeatmap = () => {
   const { currentStreak, longestStreak } = calculateStreaks(activity);
 
   return (
-    <div className="bg-surface/60 backdrop-blur-xl p-6 rounded-[2rem] border border-white/5 shadow-2xl relative overflow-hidden group hover:border-white/10 transition-colors">
+    <div className="bg-surface/60 backdrop-blur-xl p-5 rounded-[2rem] border border-white/5 shadow-2xl relative overflow-hidden group hover:border-white/10 transition-colors">
       {/* Glow Effect behind */}
       <div className="absolute -top-20 -right-20 w-40 h-40 bg-green-500/10 blur-[60px] rounded-full pointer-events-none" />
 
       {/* Header */}
-      <div className="flex justify-between items-center mb-6 relative z-10">
+      <div className="flex justify-between items-center mb-4 relative z-10">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg text-white shadow-lg shadow-orange-500/20">
             <Flame size={18} fill="currentColor" />
@@ -111,12 +111,12 @@ const StudyHeatmap = () => {
       </div>
 
       {/* Grid */}
-      <div className="mb-6">
-        <div className="grid grid-cols-7 gap-y-2 mb-2 text-center text-[10px] font-bold text-zinc-600 uppercase tracking-widest">
+      <div className="mb-4 flex flex-col items-center">
+        <div className="grid grid-cols-7 gap-x-2 gap-y-2 mb-2 text-center text-[10px] font-bold text-zinc-600 uppercase tracking-widest w-full max-w-[320px]">
           {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <div key={i}>{d}</div>)}
         </div>
 
-        <div className="grid grid-cols-7 gap-1.5">
+        <div className="grid grid-cols-7 gap-2">
           {eachDayOfInterval({
             start: startOfWeek(startOfMonth(currentMonth)),
             end: endOfWeek(endOfMonth(currentMonth))
@@ -128,7 +128,7 @@ const StudyHeatmap = () => {
             return (
               <div
                 key={i}
-                className={`aspect-square rounded-md flex items-center justify-center text-[10px] font-bold transition-all duration-300 relative group/cell
+                className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold transition-all duration-300 relative group/cell
                             ${!isCurrentMonth ? 'opacity-0 pointer-events-none' : ''}
                             ${count > 0
                     ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.4)] text-black scale-100'
@@ -139,7 +139,7 @@ const StudyHeatmap = () => {
 
                 {/* Tooltip */}
                 {isCurrentMonth && (
-                  <div className="absolute bottom-full mb-2 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/cell:opacity-100 pointer-events-none z-20 transition-opacity">
+                  <div className="absolute bottom-full mb-2 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/cell:opacity-100 pointer-events-none z-20 transition-opacity left-1/2 -translate-x-1/2 pointer-events-none">
                     {format(day, 'MMM d')} • {count} tasks
                   </div>
                 )}

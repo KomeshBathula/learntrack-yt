@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import MyCourses from './pages/MyCourses';
 import PlaylistDetail from './pages/PlaylistDetail';
 import Profile from './pages/Profile';
 import Layout from './components/Layout';
@@ -24,6 +25,14 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/courses" element={
+          <ProtectedRoute>
+            <Layout>
+              <MyCourses />
             </Layout>
           </ProtectedRoute>
         } />

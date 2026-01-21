@@ -13,14 +13,19 @@ const JumpBackIn = () => {
         <div className="relative overflow-hidden rounded-[2rem] border border-white/10 group">
             {/* Background Image with Blur */}
             <div className="absolute inset-0 z-0">
-                <img src={thumbnail} className="w-full h-full object-cover blur-3xl opacity-30 scale-110" />
+                <img src={thumbnail || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60"} className="w-full h-full object-cover blur-3xl opacity-30 scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
             </div>
 
             <div className="relative z-10 p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-start">
                 {/* Thumbnail Card */}
                 <div className="w-full md:w-80 aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 relative shrink-0 group/card">
-                    <img src={thumbnail} alt={title} className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700" />
+                    <img
+                        src={thumbnail || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60"}
+                        alt={title}
+                        onError={(e) => e.target.src = "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60"}
+                        className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700"
+                    />
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
                         <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/50 text-white">
                             <PlayCircle size={28} fill="currentColor" />

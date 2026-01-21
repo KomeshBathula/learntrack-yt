@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Home, User } from 'lucide-react';
+import { LogOut, Home, User, LayoutGrid } from 'lucide-react';
 import MiniPlayer from './MiniPlayer';
 import GrokChat from './GrokChat';
 
@@ -31,6 +31,13 @@ const Layout = ({ children }) => {
                         L
                     </div>
                     <span className="font-bold text-xl tracking-tight hidden md:block">LearnTrackYT</span>
+                </div>
+
+                {/* Desktop Nav Links */}
+                <div className="hidden md:flex items-center gap-8 mx-8">
+                    <button onClick={() => navigate('/')} className={`font-medium transition-colors ${location.pathname === '/' ? 'text-white' : 'text-zinc-400 hover:text-white'}`}>Dashboard</button>
+                    <button onClick={() => navigate('/courses')} className={`font-medium transition-colors ${location.pathname === '/courses' ? 'text-white' : 'text-zinc-400 hover:text-white'}`}>My Courses</button>
+                    <button onClick={() => navigate('/profile')} className={`font-medium transition-colors ${location.pathname === '/profile' ? 'text-white' : 'text-zinc-400 hover:text-white'}`}>Profile</button>
                 </div>
 
                 <div className="flex items-center gap-4">
@@ -64,26 +71,34 @@ const Layout = ({ children }) => {
                     onClick={() => navigate('/')}
                     className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${location.pathname === '/' ? 'text-primary' : 'text-zinc-500 hover:text-zinc-300'}`}
                 >
-                    <Home size={24} strokeWidth={location.pathname === '/' ? 2.5 : 2} />
+                    <Home size={22} strokeWidth={location.pathname === '/' ? 2.5 : 2} />
                     <span className="text-[10px] font-medium">Home</span>
+                </button>
+
+                <button
+                    onClick={() => navigate('/courses')}
+                    className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${location.pathname === '/courses' ? 'text-primary' : 'text-zinc-500 hover:text-zinc-300'}`}
+                >
+                    <LayoutGrid size={22} strokeWidth={location.pathname === '/courses' ? 2.5 : 2} />
+                    <span className="text-[10px] font-medium">Courses</span>
                 </button>
 
                 {/* Central AI Button */}
                 <button
                     onClick={() => setIsChatOpen(!isChatOpen)}
-                    className={`flex flex-col items-center justify-center -mt-6`}
+                    className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${isChatOpen ? 'text-primary' : 'text-zinc-500 hover:text-zinc-300'}`}
                 >
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg border-2 transition-all duration-300 ${isChatOpen ? 'bg-white text-black border-white scale-110' : 'bg-gradient-to-tr from-primary to-secondary text-white border-surface'}`}>
-                        <span className="text-2xl">✨</span>
+                    <div className={`transition-all duration-300 ${isChatOpen ? 'text-primary' : ''}`}>
+                        <span className="text-2xl leading-none" style={{ fontSize: '22px' }}>✨</span>
                     </div>
-                    <span className={`text-[10px] font-bold mt-1 ${isChatOpen ? 'text-white' : 'text-zinc-500'}`}>Ask AI</span>
+                    <span className="text-[10px] font-medium">Ask AI</span>
                 </button>
 
                 <button
                     onClick={() => navigate('/profile')}
                     className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${location.pathname === '/profile' ? 'text-primary' : 'text-zinc-500 hover:text-zinc-300'}`}
                 >
-                    <User size={24} strokeWidth={location.pathname === '/profile' ? 2.5 : 2} />
+                    <User size={22} strokeWidth={location.pathname === '/profile' ? 2.5 : 2} />
                     <span className="text-[10px] font-medium">Profile</span>
                 </button>
             </div>
