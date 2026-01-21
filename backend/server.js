@@ -47,6 +47,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/playlists', playlistRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/notes', noteRoutes);
+app.use('/api/ai', require('./routes/aiRoutes'));
 
 
 const PORT = process.env.PORT || 5000;

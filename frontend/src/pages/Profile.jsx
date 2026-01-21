@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import DetailedHeatmap from '../components/DetailedHeatmap';
-import { User, Edit2, Check, X, Shield, Award } from 'lucide-react';
+import { User, Edit2, Check, X, Shield, Award, Calendar, Zap, TrendingUp, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { clsx } from 'clsx';
 
 const Profile = () => {
-    const { user, login } = useAuth(); // We might need a way to update local user state
+    const { user } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     const [newUsername, setNewUsername] = useState(user?.username || '');
     const [completedPlaylists, setCompletedPlaylists] = useState([]);
@@ -20,7 +22,6 @@ const Profile = () => {
     const fetchCompletedPlaylists = async () => {
         try {
             const { data } = await api.get('/api/playlists');
-            // Filter locally for 100% completion
             const completed = data.filter(pl => pl.percent === 100);
             setCompletedPlaylists(completed);
         } catch (error) {
@@ -33,124 +34,206 @@ const Profile = () => {
     const handleUpdateProfile = async () => {
         try {
             const { data } = await api.put('/api/auth/profile', { username: newUsername });
-            // Update local storage and context
-            // Assuming the context doesn't expose a 'updateUser' method, we might have to manually update
-            // localStorage and reload or use login(data) if it accepts full user object
-            // Just for now: update the user in local storage and refresh context via window reload or context method
             const updatedUser = { ...user, username: data.username };
             localStorage.setItem('user', JSON.stringify(updatedUser));
-
-            // Hacky way to update context without a specific setUser method exposed in AuthContext
-            // Ideally AuthContext should expose setUser or refreshUser. 
-            // For now, if we call login with the new token/user data, it might work?
-            // Actually, best to just reload the page to be safe if context is rigid
             window.location.reload();
-
-            setIsEditing(false);
         } catch (error) {
             alert('Failed to update profile');
         }
     };
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: { type: "spring", stiffness: 100 }
+        }
+    };
+
     return (
-        <div className="space-y-8 animate-fade-in max-w-5xl mx-auto">
+        <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+            className="max-w-6xl mx-auto space-y-8 pb-20 pt-8"
+        >
+            {/* 1. Hero / Identity Section */}
+            <motion.div variants={itemVariants} className="relative group">
+                {/* Decorative Blur behind */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-[2rem] opacity-20 group-hover:opacity-30 blur-xl transition-opacity duration-500" />
 
-            {/* Header / Profile Card */}
-            <div className="bg-surface p-8 rounded-3xl border border-white/5 flex flex-col md:flex-row items-center gap-8 shadow-xl">
-                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-4xl font-bold border-4 border-surface shadow-2xl shrink-0">
-                    {user?.username?.charAt(0).toUpperCase()}
-                </div>
+                <div className="relative glass-card rounded-[2rem] p-6 md:p-10 flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-12 overflow-hidden">
 
-                <div className="flex-1 text-center md:text-left space-y-4 w-full">
-                    {isEditing ? (
-                        <div className="flex items-center justify-center md:justify-start gap-2">
-                            <input
-                                type="text"
-                                value={newUsername}
-                                onChange={(e) => setNewUsername(e.target.value)}
-                                className="bg-black/20 border border-white/10 rounded-xl px-4 py-2 text-xl font-bold focus:outline-none focus:border-primary w-full md:w-auto"
-                                autoFocus
-                            />
-                            <button onClick={handleUpdateProfile} className="p-2 bg-green-600 rounded-lg hover:bg-green-500 text-white shadow-lg shadow-green-900/20">
-                                <Check size={20} />
-                            </button>
-                            <button onClick={() => setIsEditing(false)} className="p-2 bg-red-600/80 rounded-lg hover:bg-red-500 text-white">
-                                <X size={20} />
-                            </button>
+                    {/* Avatar Ring */}
+                    <div className="relative shrink-0">
+                        <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-surface border-4 border-surface shadow-2xl flex items-center justify-center relative z-10">
+                            <span className="text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary">
+                                {user?.username?.charAt(0).toUpperCase()}
+                            </span>
                         </div>
-                    ) : (
-                        <div className="flex items-center justify-center md:justify-start gap-3 group">
-                            <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-zinc-400 text-center">
-                                {user?.username}
-                            </h1>
-                            <button
-                                onClick={() => setIsEditing(true)}
-                                className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-2 hover:bg-white/10 rounded-lg text-zinc-400 hover:text-white"
-                            >
-                                <Edit2 size={16} />
-                            </button>
-                        </div>
-                    )}
-
-                    <div className="flex items-center justify-center md:justify-start gap-6 text-zinc-400 text-sm">
-                        <span className="flex items-center gap-2">
-                            <Shield size={14} /> Member since {new Date().getFullYear()}
-                        </span>
-                        <span>
-                            {user?.email}
-                        </span>
+                        {/* Animated Ring */}
+                        <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-pulse-slow scale-110" />
+                        <div className="absolute inset-0 rounded-full border border-secondary/20 scale-125 opacity-50" />
                     </div>
-                </div>
-            </div>
 
-            {/* Heatmap Section */}
-            <div className="bg-surface p-6 rounded-3xl border border-white/5 shadow-lg">
-                <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                    <div className="w-1 h-6 bg-green-500 rounded-full"></div>
-                    Learning Activity
-                    <span className="text-xs font-normal text-zinc-500 ml-auto border border-white/5 px-3 py-1 rounded-full">Past Year</span>
-                </h2>
-                <DetailedHeatmap />
-            </div>
+                    {/* User Info Details */}
+                    <div className="flex-1 text-center md:text-left space-y-4 w-full pt-2">
+                        <div className="space-y-2">
+                            <h2 className="text-sm font-medium text-primary tracking-wider uppercase flex items-center justify-center md:justify-start gap-2">
+                                <Shield size={14} /> Premium Student
+                            </h2>
 
-            {/* Completed Playlists */}
-            <div className="bg-surface p-6 rounded-3xl border border-white/5 shadow-lg">
-                <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                    <div className="w-1 h-6 bg-yellow-500 rounded-full"></div>
-                    Completed Achievements
-                    <span className="bg-yellow-500/10 text-yellow-500 text-xs px-2 py-1 rounded-full ml-2">
-                        {completedPlaylists.length}
-                    </span>
-                </h2>
-
-                {completedPlaylists.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {completedPlaylists.map(pl => (
-                            <Link to={`/playlist/${pl._id}`} key={pl._id} className="block group">
-                                <div className="bg-black/20 rounded-xl p-4 border border-white/5 hover:border-yellow-500/50 transition-all group-hover:bg-black/40 flex items-center gap-4">
-                                    <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-white/10">
-                                        <img src={pl.thumbnail} alt={pl.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                                    </div>
-                                    <div className="min-w-0">
-                                        <h3 className="font-bold text-sm truncate text-zinc-200 group-hover:text-white">{pl.title}</h3>
-                                        <p className="text-xs text-zinc-500 mt-1">{pl.channelTitle}</p>
-                                        <div className="mt-2 text-xs text-yellow-500 flex items-center gap-1">
-                                            <Award size={12} /> Completed
-                                        </div>
+                            {isEditing ? (
+                                <div className="flex items-center justify-center md:justify-start gap-3">
+                                    <input
+                                        type="text"
+                                        value={newUsername}
+                                        onChange={(e) => setNewUsername(e.target.value)}
+                                        className="bg-black/40 border border-white/20 rounded-xl px-5 py-3 text-2xl md:text-4xl font-bold text-white focus:outline-none focus:border-primary w-full md:w-auto min-w-[300px]"
+                                        autoFocus
+                                        placeholder="Enter username"
+                                    />
+                                    <div className="flex gap-2">
+                                        <button onClick={handleUpdateProfile} className="p-3 bg-primary hover:bg-primary/80 rounded-xl text-white transition-colors">
+                                            <Check size={20} />
+                                        </button>
+                                        <button onClick={() => setIsEditing(false)} className="p-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-zinc-400 hover:text-white transition-colors">
+                                            <X size={20} />
+                                        </button>
                                     </div>
                                 </div>
-                            </Link>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-12 text-zinc-500 border border-white/5 border-dashed rounded-xl">
-                        <Award size={48} className="mx-auto mb-4 opacity-20" />
-                        <p>No completed playlists yet. Keep going!</p>
-                    </div>
-                )}
-            </div>
+                            ) : (
+                                <div className="flex items-center justify-center md:justify-start gap-4 group/edit">
+                                    <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight">
+                                        {user?.username}
+                                    </h1>
+                                    <button
+                                        onClick={() => setIsEditing(true)}
+                                        className="opacity-0 group-hover/edit:opacity-100 transition-all p-2 hover:bg-white/10 rounded-lg text-zinc-500 hover:text-white"
+                                        title="Edit Profile"
+                                    >
+                                        <Edit2 size={20} />
+                                    </button>
+                                </div>
+                            )}
+                        </div>
 
-        </div >
+                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-8 gap-y-3 text-zinc-400 text-sm md:text-base">
+                            <span className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
+                                Online Status
+                            </span>
+                            <span className="flex items-center gap-2">
+                                <Calendar size={16} className="text-zinc-500" />
+                                {user?.email}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Quick Stats on Desktop */}
+                    <div className="hidden md:flex flex-col gap-4 min-w-[200px] border-l border-white/5 pl-8">
+                        <div className="text-right">
+                            <p className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Level</p>
+                            <p className="text-3xl font-bold text-white">Novice</p>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Streak</p>
+                            <div className="flex items-center justify-end gap-1 text-orange-500 font-bold text-xl">
+                                <Zap size={20} fill="currentColor" /> 12 Days
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* 2. Heatmap Panel - Main Focus */}
+                <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6">
+                    <div className="glass-card rounded-[2rem] p-6 border border-white/5 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-6 opacity-50">
+                            <TrendingUp size={100} className="text-white/5" />
+                        </div>
+
+                        <div className="flex items-center justify-between mb-8 relative z-10">
+                            <div>
+                                <h3 className="text-xl font-bold flex items-center gap-2 text-white">
+                                    <TrendingUp className="text-green-400" size={20} />
+                                    Consistency Graph
+                                </h3>
+                                <p className="text-zinc-500 text-sm mt-1">Your daily learning momentum visualization</p>
+                            </div>
+                            <div className="bg-white/5 px-4 py-1.5 rounded-full text-xs font-medium text-zinc-300 border border-white/5">
+                                2026 Year View
+                            </div>
+                        </div>
+
+                        <div className="overflow-x-auto pb-4 custom-scrollbar">
+                            <DetailedHeatmap />
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* 3. Achievements / Stats Side Panel */}
+                <motion.div variants={itemVariants} className="space-y-6">
+                    <div className="glass-panel rounded-[2rem] p-6 flex flex-col h-full">
+                        <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                            <Award className="text-yellow-400" size={20} />
+                            Achievements
+                        </h3>
+
+                        <div className="flex-1 space-y-4">
+                            {completedPlaylists.length > 0 ? (
+                                completedPlaylists.map(pl => (
+                                    <Link to={`/playlist/${pl._id}`} key={pl._id} className="block group">
+                                        <div className="bg-black/20 hover:bg-white/5 border border-white/5 hover:border-primary/30 rounded-xl p-3 flex items-center gap-3 transition-all duration-300">
+                                            <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-white/10">
+                                                <img src={pl.thumbnail} alt={pl.title} className="w-full h-full object-cover" />
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <h4 className="text-sm font-medium text-zinc-200 group-hover:text-primary transition-colors truncate">{pl.title}</h4>
+                                                <p className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Completed</p>
+                                            </div>
+                                            <div className="w-6 h-6 rounded-full bg-yellow-500/10 flex items-center justify-center">
+                                                <Award size={12} className="text-yellow-500" />
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))
+                            ) : (
+                                <div className="h-40 flex flex-col items-center justify-center text-center p-4 border border-dashed border-white/10 rounded-2xl bg-white/5">
+                                    <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
+                                        <Award className="text-zinc-600" size={24} />
+                                    </div>
+                                    <p className="text-sm text-zinc-400 font-medium">No Trophies Yet</p>
+                                    <p className="text-xs text-zinc-600 mt-1">Complete a playlist to earn badges!</p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="pt-6 mt-6 border-t border-white/5">
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-zinc-500">Total Hours</span>
+                                <span className="text-white font-mono">124.5h</span>
+                            </div>
+                            <div className="w-full bg-white/5 h-1.5 rounded-full mt-2 overflow-hidden">
+                                <div className="bg-gradient-to-r from-primary to-secondary w-3/4 h-full rounded-full" />
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
+        </motion.div>
     );
 };
 

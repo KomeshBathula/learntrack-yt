@@ -14,16 +14,14 @@ import {
   parseISO,
   isFuture,
 } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Flame } from "lucide-react";
 import api from "../utils/api";
 
 const StudyHeatmap = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [activity, setActivity] = useState([]);
 
-
   const fetchActivity = async () => {
-
     try {
       const { data } = await api.get("/api/progress/heatmap");
       setActivity(data);
@@ -33,7 +31,6 @@ const StudyHeatmap = () => {
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchActivity();
   }, []);
 
@@ -81,110 +78,88 @@ const StudyHeatmap = () => {
     return { currentStreak, longestStreak };
   };
 
-  const handlePrevMonth = () => {
-    setCurrentMonth(subMonths(currentMonth, 1));
-  };
-
-  const handleNextMonth = () => {
-    setCurrentMonth(addMonths(currentMonth, 1));
-  };
-
-  const renderHeader = () => {
-    return (
-
-      <div className="flex justify-between items-center mb-4 gap-2">
-        <button onClick={handlePrevMonth} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-          <ChevronLeft size={20} />
-        </button>
-        <h3 className="text-base font-bold text-white tracking-wide">
-          {format(currentMonth, "MMMM yyyy")}
-        </h3>
-        <button onClick={handleNextMonth} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-          <ChevronRight size={20} />
-        </button>
-      </div>
-    );
-  };
-
-  const renderDays = () => {
-    const daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"];
-    return (
-      <div className="grid grid-cols-7 gap-2 text-center text-xs font-medium text-zinc-500 mb-2">
-        {daysOfWeek.map((day, i) => (
-          <div key={i}>{day}</div>
-        ))}
-      </div>
-    );
-  };
-
-  const renderCells = () => {
-    const monthStart = startOfMonth(currentMonth);
-    const monthEnd = endOfMonth(monthStart);
-    const startDate = startOfWeek(monthStart);
-    const endDate = endOfWeek(monthEnd);
-    const days = eachDayOfInterval({ start: startDate, end: endDate });
-
-    return (
-      <div className="grid grid-cols-7 gap-1.5">
-        {days.map((day) => {
-          const activityOnDay = activity.find((a) =>
-            isSameDay(parseISO(a.date), day)
-          );
-          const count = activityOnDay ? activityOnDay.count : 0;
-
-          return (
-            <div
-              key={day}
-              className={`aspect-square w-full rounded-lg flex items-center justify-center text-xs font-semibold transition-all duration-300 ${!isSameMonth(day, monthStart)
-                ? "bg-transparent text-transparent"
-                : count > 0
-                  ? "bg-green-500/20 text-green-400 shadow-[0_0_12px_-3px_rgba(74,222,128,0.3)] border border-green-500/30"
-                  : "bg-white/5 text-zinc-500 hover:bg-white/10"
-                }`}
-            >
-              {isSameMonth(day, monthStart) ? (
-                isFuture(day) ? (
-                  ""
-                ) : count > 0 ? (
-                  count
-                ) : (
-                  <span className="text-base opacity-40 grayscale hover:grayscale-0 transition-all">😭</span>
-                )
-              ) : (
-                ""
-              )}
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
-  const renderStreak = () => {
-    const { currentStreak, longestStreak } = calculateStreaks(activity);
-
-    return (
-      <div className="mt-4 pt-4 border-t border-white/5 flex justify-center items-center gap-8">
-        <div className="text-center group">
-          <p className="text-2xl font-bold text-white group-hover:text-primary transition-colors">{currentStreak}</p>
-          <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mt-1">Current Streak</p>
-        </div>
-        <div className="w-px h-10 bg-gradient-to-b from-transparent via-white/20 to-transparent"></div>
-        <div className="text-center group">
-          <p className="text-2xl font-bold text-white group-hover:text-secondary transition-colors">{longestStreak}</p>
-          <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mt-1">Longest Streak</p>
-        </div>
-      </div>
-
-    );
-  };
+  const { currentStreak, longestStreak } = calculateStreaks(activity);
 
   return (
-    <div className="bg-surface/50 backdrop-blur-sm p-5 rounded-3xl border border-white/10 w-full max-w-[300px] mx-auto shadow-2xl">
-      {renderHeader()}
-      {renderDays()}
-      {renderCells()}
-      {renderStreak()}
+    <div className="bg-surface/60 backdrop-blur-xl p-6 rounded-[2rem] border border-white/5 shadow-2xl relative overflow-hidden group hover:border-white/10 transition-colors">
+      {/* Glow Effect behind */}
+      <div className="absolute -top-20 -right-20 w-40 h-40 bg-green-500/10 blur-[60px] rounded-full pointer-events-none" />
+
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6 relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg text-white shadow-lg shadow-orange-500/20">
+            <Flame size={18} fill="currentColor" />
+          </div>
+          <div>
+            <h3 className="font-bold text-white leading-tight">Activity</h3>
+            <p className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">Heatmap</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1 bg-black/40 rounded-lg p-1 border border-white/5">
+          <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1.5 hover:bg-white/10 rounded-md text-zinc-400 hover:text-white transition-colors">
+            <ChevronLeft size={16} />
+          </button>
+          <span className="text-xs font-bold w-24 text-center">
+            {format(currentMonth, "MMMM yyyy")}
+          </span>
+          <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1.5 hover:bg-white/10 rounded-md text-zinc-400 hover:text-white transition-colors">
+            <ChevronRight size={16} />
+          </button>
+        </div>
+      </div>
+
+      {/* Grid */}
+      <div className="mb-6">
+        <div className="grid grid-cols-7 gap-y-2 mb-2 text-center text-[10px] font-bold text-zinc-600 uppercase tracking-widest">
+          {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <div key={i}>{d}</div>)}
+        </div>
+
+        <div className="grid grid-cols-7 gap-1.5">
+          {eachDayOfInterval({
+            start: startOfWeek(startOfMonth(currentMonth)),
+            end: endOfWeek(endOfMonth(currentMonth))
+          }).map((day, i) => {
+            const isCurrentMonth = isSameMonth(day, currentMonth);
+            const activityOnDay = activity.find(a => isSameDay(parseISO(a.date), day));
+            const count = activityOnDay ? activityOnDay.count : 0;
+
+            return (
+              <div
+                key={i}
+                className={`aspect-square rounded-md flex items-center justify-center text-[10px] font-bold transition-all duration-300 relative group/cell
+                            ${!isCurrentMonth ? 'opacity-0 pointer-events-none' : ''}
+                            ${count > 0
+                    ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.4)] text-black scale-100'
+                    : 'bg-white/5 text-transparent hover:bg-white/10 scale-90 hover:scale-100'}
+                        `}
+              >
+                {count > 0 && count}
+
+                {/* Tooltip */}
+                {isCurrentMonth && (
+                  <div className="absolute bottom-full mb-2 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/cell:opacity-100 pointer-events-none z-20 transition-opacity">
+                    {format(day, 'MMM d')} • {count} tasks
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Footer Stats */}
+      <div className="flex items-center gap-4 pt-4 border-t border-white/5">
+        <div className="flex-1 bg-white/5 rounded-xl p-3 text-center border border-white/5">
+          <p className="text-2xl font-black text-white">{currentStreak}</p>
+          <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Current Streak</p>
+        </div>
+        <div className="flex-1 bg-white/5 rounded-xl p-3 text-center border border-white/5">
+          <p className="text-2xl font-black text-zinc-400">{longestStreak}</p>
+          <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Longest</p>
+        </div>
+      </div>
     </div>
   );
 };

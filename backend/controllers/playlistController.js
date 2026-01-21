@@ -164,6 +164,11 @@ const fetchYouTubePlaylist = async (playlistId) => {
 // Add Playlist
 exports.addPlaylist = async (req, res) => {
     const { url } = req.body;
+
+    if (!req.user || !req.user._id) {
+        return res.status(401).json({ message: 'User not authenticated' });
+    }
+
     let playlistId = url;
 
     // Extract ID from URL
