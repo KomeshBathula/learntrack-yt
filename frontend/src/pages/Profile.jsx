@@ -231,6 +231,50 @@ const Profile = () => {
                     </div>
                 </motion.div>
             </div>
+
+            {/* 4. Quiz Results Section */}
+            <motion.div variants={itemVariants} className="mt-8">
+                <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                    <Award className="text-purple-400" size={20} />
+                    Quiz Performance
+                </h3>
+
+                {user?.quizResults?.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {user.quizResults.slice().reverse().map((quiz, idx) => (
+                            <div key={idx} className="bg-white/5 border border-white/5 hover:bg-white/10 hover:border-purple-500/30 rounded-2xl p-4 transition-all group">
+                                <div className="flex justify-between items-start mb-3">
+                                    <div className="text-sm font-medium text-zinc-300 line-clamp-1 pr-2" title={quiz.topic}>
+                                        {quiz.topic || 'General Knowledge'}
+                                    </div>
+                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${quiz.percentage >= 80 ? 'bg-green-500/20 text-green-400' :
+                                            quiz.percentage >= 50 ? 'bg-yellow-500/20 text-yellow-400' :
+                                                'bg-red-500/20 text-red-400'
+                                        }`}>
+                                        {quiz.percentage}%
+                                    </span>
+                                </div>
+
+                                <div className="flex items-end justify-between">
+                                    <div>
+                                        <div className="text-xs text-zinc-500">Score</div>
+                                        <div className="text-lg font-bold text-white leading-none mt-1">
+                                            {quiz.score}/{quiz.total}
+                                        </div>
+                                    </div>
+                                    <div className="text-[10px] text-zinc-600">
+                                        {new Date(quiz.date).toLocaleDateString()}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="bg-white/5 border border-dashed border-white/10 rounded-2xl p-8 text-center">
+                        <p className="text-zinc-500">No quizzes taken yet. Go to Summary page to take a quiz!</p>
+                    </div>
+                )}
+            </motion.div>
         </motion.div>
     );
 };

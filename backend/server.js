@@ -48,6 +48,7 @@ app.use('/api/playlists', playlistRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api/ai', require('./routes/aiRoutes'));
+app.use('/api/ai-studio', require('./ai/ai.routes'));
 
 
 const PORT = process.env.PORT || 5000;

@@ -9,6 +9,7 @@ router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfile);
+router.post('/quiz-result', protect, require('../controllers/authController').saveQuizResult);
 
 // Duplicate as POST for debugging
 router.post('/profile-post', protect, updateProfile);

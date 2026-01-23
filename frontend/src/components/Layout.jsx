@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Home, User, LayoutGrid } from 'lucide-react';
+import { LogOut, Home, User, LayoutGrid, Brain } from 'lucide-react';
 import MiniPlayer from './MiniPlayer';
 import GrokChat from './GrokChat';
 
@@ -37,6 +37,7 @@ const Layout = ({ children }) => {
                 <div className="hidden md:flex items-center gap-8 mx-8">
                     <button onClick={() => navigate('/')} className={`font-medium transition-colors ${location.pathname === '/' ? 'text-white' : 'text-zinc-400 hover:text-white'}`}>Dashboard</button>
                     <button onClick={() => navigate('/courses')} className={`font-medium transition-colors ${location.pathname === '/courses' ? 'text-white' : 'text-zinc-400 hover:text-white'}`}>My Courses</button>
+                    <button onClick={() => navigate('/ai-learning')} className={`font-medium transition-colors ${location.pathname === '/ai-learning' ? 'text-white' : 'text-zinc-400 hover:text-white'}`}>Summary</button>
                     <button onClick={() => navigate('/profile')} className={`font-medium transition-colors ${location.pathname === '/profile' ? 'text-white' : 'text-zinc-400 hover:text-white'}`}>Profile</button>
                 </div>
 
@@ -81,6 +82,14 @@ const Layout = ({ children }) => {
                 >
                     <LayoutGrid size={22} strokeWidth={location.pathname === '/courses' ? 2.5 : 2} />
                     <span className="text-[10px] font-medium">Courses</span>
+                </button>
+
+                <button
+                    onClick={() => navigate('/ai-learning')}
+                    className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${location.pathname === '/ai-learning' ? 'text-primary' : 'text-zinc-500 hover:text-zinc-300'}`}
+                >
+                    <Brain size={22} strokeWidth={location.pathname === '/ai-learning' ? 2.5 : 2} />
+                    <span className="text-[10px] font-medium">Summary</span>
                 </button>
 
                 {/* Central AI Button */}

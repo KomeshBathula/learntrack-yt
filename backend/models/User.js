@@ -12,7 +12,14 @@ const userSchema = new mongoose.Schema({
         thumbnail: String,
         title: String,
         timestamp: { type: Date, default: Date.now }
-    }
+    },
+    quizResults: [{
+        score: Number,
+        total: Number,
+        percentage: Number,
+        topic: String, // e.g., video title or generic "AI Quiz"
+        date: { type: Date, default: Date.now }
+    }]
 });
 
 userSchema.pre('save', async function () {

@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import MyCourses from './pages/MyCourses';
 import PlaylistDetail from './pages/PlaylistDetail';
 import Profile from './pages/Profile';
+import AiLearning from './pages/AiLearning';
 import Layout from './components/Layout';
 
 const ProtectedRoute = ({ children }) => {
@@ -49,6 +50,14 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <Profile />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/ai-learning" element={
+          <ProtectedRoute>
+            <Layout>
+              <AiLearning />
             </Layout>
           </ProtectedRoute>
         } />
