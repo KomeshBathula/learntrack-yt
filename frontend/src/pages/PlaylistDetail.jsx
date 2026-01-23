@@ -7,6 +7,7 @@ import NotesSection from '../components/NotesSection';
 import { CheckCircle, Circle, Trash2, ArrowLeft, Play } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAuth } from '../context/AuthContext';
+import PlaylistSkeleton from '../components/PlaylistSkeleton';
 
 const PlaylistDetail = () => {
     const { id } = useParams();
@@ -25,7 +26,12 @@ const PlaylistDetail = () => {
 
     const fetchPlaylist = async () => {
         try {
-            const { data } = await api.get(`/api/playlists/${id}`);
+            const [response] = await Promise.all([
+                api.get(`/api/playlists/${id}`),
+                new Promise(resolve => setTimeout(resolve, 800))
+            ]);
+            // Destructure data from the first promise result
+            const data = response.data;
             setPlaylist(data);
             // Auto-select first uncompleted video
             if (data.videos.length > 0) {
@@ -191,7 +197,7 @@ const PlaylistDetail = () => {
         return { percent, completed, total, remainingSeconds };
     }, [playlist]);
 
-    if (loading) return <div className="flex justify-center py-20">Loading...</div>;
+    if (loading) return <PlaylistSkeleton />;
     if (!playlist) return <div className="flex justify-center py-20">Playlist not found</div>;
 
     const activeVideo = playlist.videos.find(v => v.videoId === activeVideoId);

@@ -22,7 +22,7 @@ exports.chatWithGrok = async (req, res) => {
         });
 
         const completion = await openai.chat.completions.create({
-            model: "llama-3.3-70b-versatile", // Valid model as of 2026
+            model: "llama-3.1-8b-instant", // Switch to faster model for chat as well
             messages: [
                 { role: "system", content: "You are a helpful YouTube learning assistant. You help users understand video content, answer questions about their playlists, and provide study tips. Keep answers concise and encouraging." },
                 ...messages

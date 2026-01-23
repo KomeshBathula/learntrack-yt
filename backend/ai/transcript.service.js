@@ -1,9 +1,11 @@
+const { exec } = require('child_process');
+const util = require('util');
+const execPromise = util.promisify(exec);
 const { Innertube, UniversalCache } = require('youtubei.js');
 const { YoutubeTranscript } = require('youtube-transcript');
 const Groq = require('groq-sdk');
 const fs = require('fs');
 const path = require('path');
-const ytdl = require('@distube/ytdl-core'); // Keep for backup
 require('dotenv').config();
 
 const groq = new Groq({
@@ -39,6 +41,11 @@ class TranscriptService {
                 const text = transcriptData.transcript.content.body.initial_segments
                     .map(seg => seg.snippet.text)
                     .join(' ');
+
+                if (!text || text.length < 50) {
+                    throw new Error('InnerTube returned empty/short transcript');
+                }
+
                 console.log('[Transcript] Strategy 1 Success!');
                 return text;
             }
@@ -51,49 +58,131 @@ class TranscriptService {
         try {
             console.log('[Transcript] Strategy 2: Standard Scraping...');
             const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
+            const text = transcriptItems.map(item => item.text).join(' ');
+
+            if (!text || text.length < 50) {
+                throw new Error('Standard scrap returned empty/short transcript');
+            }
+
             console.log('[Transcript] Strategy 2 Success!');
-            return transcriptItems.map(item => item.text).join(' ');
+            return text;
         } catch (err) {
             console.log(`[Transcript] Strategy 2 Failed: ${err.message}`);
             lastError = err;
         }
 
-        // --- STRATEGY 3: Whisper (Audio Download) ---
+        // --- STRATEGY 3: yt-dlp Subtitles (Direct Fetch) ---
         try {
-            console.log('[Transcript] Strategy 3: Whisper AI Fallback...');
+            console.log('[Transcript] Strategy 3: yt-dlp Subtitles...');
+            return await this.fetchSubtitlesWithYtDlp(url, videoId);
+        } catch (err) {
+            console.log(`[Transcript] Strategy 3 Failed: ${err.message}`);
+            lastError = err;
+        }
+
+        // --- STRATEGY 4: Whisper (Audio Download via yt-dlp) ---
+        try {
+            console.log('[Transcript] Strategy 4: Whisper AI Fallback (via yt-dlp)...');
             return await this.transcribeWithWhisper(url, videoId);
         } catch (err) {
-            console.error(`[Transcript] Strategy 3 Failed: ${err.message}`);
+            console.error(`[Transcript] Strategy 4 Failed: ${err.message}`);
             lastError = err;
         }
 
         throw new Error(`All transcript strategies failed. Last error: ${lastError?.message}`);
     }
 
+    static async fetchSubtitlesWithYtDlp(url, videoId) {
+        // Output template for subs
+        const tempBase = path.resolve(__dirname, `temp_subs_${videoId}`);
+
+        // Command to fetch subs. Try manual subs first, then auto.
+        // We use --skip-download to only get subs.
+        // We convert to srt for easier parsing.
+
+        try {
+            console.log('[Transcript] Attempting yt-dlp subtitle fetch...');
+            // Try fetching English subs (auto or manual)
+            // --write-sub: write manual subs
+            // --write-auto-sub: write auto subs
+            // --sub-lang en,en-US,en-GB: languages
+            // --output: path template
+
+            const cmd = `yt-dlp --write-sub --write-auto-sub --sub-lang "en,en-US,en-GB,en-orig" --skip-download --convert-subs srt --output "${tempBase}" "${url}"`;
+
+            await execPromise(cmd);
+
+            // yt-dlp creates files like temp_subs_ID.en.srt
+            // We need to find the created file.
+            const dir = path.dirname(tempBase);
+            const files = fs.readdirSync(dir);
+            const subFile = files.find(f => f.startsWith(`temp_subs_${videoId}`) && f.endsWith('.srt'));
+
+            if (!subFile) {
+                throw new Error('No subtitle file downloaded');
+            }
+
+            const content = fs.readFileSync(path.join(dir, subFile), 'utf-8');
+
+            // Cleanup immediately
+            files.filter(f => f.startsWith(`temp_subs_${videoId}`)).forEach(f => {
+                try { fs.unlinkSync(path.join(dir, f)); } catch (e) { }
+            });
+
+            // Parse SRT to text
+            return this.parseSrt(content);
+
+        } catch (error) {
+            // Cleanup on error
+            const dir = path.dirname(tempBase);
+            if (fs.existsSync(dir)) {
+                const files = fs.readdirSync(dir);
+                files.filter(f => f.startsWith(`temp_subs_${videoId}`)).forEach(f => {
+                    try { fs.unlinkSync(path.join(dir, f)); } catch (e) { }
+                });
+            }
+            throw error;
+        }
+    }
+
+    static parseSrt(srtContent) {
+        // Simple SRT parser
+        // Remove timestamps and indices
+        const lines = srtContent.split(/\r?\n/);
+        const textLines = [];
+
+        for (const line of lines) {
+            // Skip indices (numeric only lines)
+            if (/^\d+$/.test(line.trim())) continue;
+            // Skip timestamps
+            if (line.includes('-->')) continue;
+            // Skip empty lines
+            if (!line.trim()) continue;
+
+            // Add unique lines (dedupe consecutive)
+            const cleanLine = line.trim();
+            if (textLines.length === 0 || textLines[textLines.length - 1] !== cleanLine) {
+                textLines.push(cleanLine);
+            }
+        }
+
+        return textLines.join(' ');
+    }
+
     static async transcribeWithWhisper(url, videoId) {
         const tempPath = path.resolve(__dirname, `temp_${videoId}.mp3`);
 
         try {
-            await new Promise((resolve, reject) => {
-                const stream = ytdl(url, {
-                    quality: 'lowestaudio',
-                    filter: 'audioonly',
-                    ipv6Block: true, // Sometimes helps with 429s
-                    requestOptions: {
-                        headers: {
-                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-                            'Referer': 'https://www.youtube.com/'
-                        }
-                    }
-                });
+            console.log('[Transcript] Downloading audio with yt-dlp...');
+            // Use yt-dlp to download audio
+            // -x: extract audio
+            // --audio-format mp3
+            const cmd = `yt-dlp -x --audio-format mp3 -o "${tempPath}" "${url}"`;
+            await execPromise(cmd);
 
-                const writer = fs.createWriteStream(tempPath);
-                stream.pipe(writer);
-
-                writer.on('finish', resolve);
-                stream.on('error', reject);
-                writer.on('error', reject);
-            });
+            if (!fs.existsSync(tempPath)) {
+                throw new Error('Audio file not created by yt-dlp');
+            }
 
             console.log('[Transcript] Audio downloaded, sending to Groq...');
 
@@ -106,7 +195,6 @@ class TranscriptService {
             return transcription;
 
         } catch (error) {
-            if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
             throw error;
         } finally {
             if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
