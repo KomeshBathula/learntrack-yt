@@ -19,6 +19,7 @@ const PlaylistDetail = () => {
     const [playlist, setPlaylist] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeVideoId, setActiveVideoId] = useState(null);
+    const [notesDirty, setNotesDirty] = useState(false);
 
     // refs for scrolling to the active item
     const listRef = useRef(null);
@@ -256,7 +257,13 @@ const PlaylistDetail = () => {
 
                     {/* Notes Section */}
                     {activeVideoId && (
-                        <NotesSection playlistId={id} videoId={activeVideoId} />
+                        <NotesSection
+                            playlistId={id}
+                            videoId={activeVideoId}
+                            videoTitle={activeVideo?.title}
+                            isDirty={notesDirty}
+                            setIsDirty={setNotesDirty}
+                        />
                     )}
                 </div>
 
@@ -288,7 +295,17 @@ const PlaylistDetail = () => {
                                     activeVideoId === video.videoId ? "bg-white/10 border-primary/50" : "bg-transparent border-transparent",
                                     video.status === 'COMPLETED' && activeVideoId !== video.videoId ? "opacity-60" : "opacity-100"
                                 )}
-                                onClick={() => setActiveVideoId(video.videoId)}
+                                onClick={() => {
+                                    if (activeVideoId === video.videoId) return;
+                                    if (notesDirty) {
+                                        if (window.confirm("You have unsaved notes! Click OK to discard and switch. Click Cancel to stay.")) {
+                                            setNotesDirty(false); // Discard
+                                        } else {
+                                            return; // Stay
+                                        }
+                                    }
+                                    setActiveVideoId(video.videoId);
+                                }}
                             >
                                 <div className="relative w-24 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-black">
                                     <img src={video.thumbnail} className="w-full h-full object-cover" />

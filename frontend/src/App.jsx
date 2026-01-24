@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { createBrowserRouter, createRoutesFromElements, RouterProvider, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -16,53 +16,54 @@ const ProtectedRoute = ({ children }) => {
   return user ? children : <Navigate to="/login" />;
 };
 
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/" element={
+        <ProtectedRoute>
+          <Layout>
+            <Dashboard />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/courses" element={
+        <ProtectedRoute>
+          <Layout>
+            <MyCourses />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/playlist/:id" element={
+        <ProtectedRoute>
+          <Layout>
+            <PlaylistDetail />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <Layout>
+            <Profile />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/ai-learning" element={
+        <ProtectedRoute>
+          <Layout>
+            <AiLearning />
+          </Layout>
+        </ProtectedRoute>
+      } />
+    </>
+  )
+);
+
 function App() {
   return (
     <AuthProvider>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-
-        <Route path="/" element={
-          <ProtectedRoute>
-            <Layout>
-              <Dashboard />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/courses" element={
-          <ProtectedRoute>
-            <Layout>
-              <MyCourses />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/playlist/:id" element={
-          <ProtectedRoute>
-            <Layout>
-              <PlaylistDetail />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/profile" element={
-          <ProtectedRoute>
-            <Layout>
-              <Profile />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/ai-learning" element={
-          <ProtectedRoute>
-            <Layout>
-              <AiLearning />
-            </Layout>
-          </ProtectedRoute>
-        } />
-      </Routes>
+      <RouterProvider router={router} />
     </AuthProvider>
   );
 }

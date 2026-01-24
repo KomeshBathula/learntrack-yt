@@ -27,12 +27,32 @@ router.post('/process', async (req, res) => {
         }
 
         // 2. Parallel AI Processing
-        console.log('Starting AI processing...');
-        const [summary, questions, clarifications] = await Promise.all([
-            SummarizationService.generateSummary(transcript, summaryLevel, language), // Pass language
-            QuestionService.generateQuestions(transcript, 5, language),
-            ClarificationService.generateClarifications(transcript, language)
-        ]);
+        // 2. Sequential AI Processing (to avoid Rate Limits)
+        console.log('Starting AI processing (Sequential)...');
+
+        // Priority 1: Summary (Critical)
+        console.log('Generating Summary...');
+        const summary = await SummarizationService.generateSummary(transcript, summaryLevel, language);
+
+        // Priority 2: Questions (Optional - Fail Gracefully)
+        let questions = [];
+        try {
+            console.log('Waiting 2s before generating Questions...');
+            await new Promise(r => setTimeout(r, 2000)); // Rate limit buffer
+            questions = await QuestionService.generateQuestions(transcript, 5, language);
+        } catch (err) {
+            console.error('Question generation skipped:', err.message);
+        }
+
+        // Priority 3: Clarifications (Optional - Fail Gracefully)
+        let clarifications = [];
+        try {
+            console.log('Waiting 2s before generating Clarifications...');
+            await new Promise(r => setTimeout(r, 2000)); // Rate limit buffer
+            clarifications = await ClarificationService.generateClarifications(transcript, language);
+        } catch (err) {
+            console.error('Clarification generation skipped:', err.message);
+        }
 
         res.json({
             summary,

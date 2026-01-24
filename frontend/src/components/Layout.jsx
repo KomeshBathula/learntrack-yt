@@ -18,8 +18,10 @@ const Layout = ({ children }) => {
     }, []);
 
     const handleLogout = () => {
-        logout();
-        navigate('/login');
+        if (window.confirm("Are You Sure To Log Out ?")) {
+            logout();
+            navigate('/login');
+        }
     };
 
     return (
@@ -42,7 +44,7 @@ const Layout = ({ children }) => {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <span onClick={() => navigate('/profile')} className="text-sm text-zinc-400 hidden sm:block hover:text-white cursor-pointer transition-colors">Hello, {user?.username}</span>
+
                     <button
                         onClick={handleLogout}
                         className="p-2 hover:bg-white/5 rounded-full transition-colors"
