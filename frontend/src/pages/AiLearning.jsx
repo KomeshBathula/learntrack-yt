@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import AiSkeleton from '../components/AiSkeleton';
 import VideoInput from '../components/ai/VideoInput';
 import SummaryView from '../components/ai/SummaryView';
 import QuestionView from '../components/ai/QuestionView';
@@ -66,8 +67,10 @@ const AiLearning = () => {
                     </motion.div>
                 )}
 
+                {loading && <AiSkeleton />}
+
                 {/* Results Section */}
-                {data && (
+                {!loading && data && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}

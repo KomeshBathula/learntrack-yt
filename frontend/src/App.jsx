@@ -8,10 +8,11 @@ import PlaylistDetail from './pages/PlaylistDetail';
 import Profile from './pages/Profile';
 import AiLearning from './pages/AiLearning';
 import Layout from './components/Layout';
+import LoadingScreen from './components/LoadingScreen';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <LoadingScreen />;
   return user ? children : <Navigate to="/login" />;
 };
 

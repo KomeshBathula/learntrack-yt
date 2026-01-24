@@ -28,7 +28,7 @@ class QuestionService {
                         content: `Generate 5 MCQ questions based on this text:\n\n${transcript.substring(0, 15000)}`
                     }
                 ],
-                model: "llama-3.3-70b-versatile",
+                model: "llama-3.1-8b-instant",
                 temperature: 0.1, // Lower temperature means more deterministic
             });
 

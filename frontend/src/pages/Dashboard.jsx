@@ -4,26 +4,38 @@ import { Link } from "react-router-dom";
 import { PlayCircle, Zap, LayoutGrid, ArrowRight } from "lucide-react";
 import StudyHeatmap from "../components/StudyHeatmap";
 import JumpBackIn from "../components/JumpBackIn";
+import DashboardSkeleton from "../components/DashboardSkeleton";
 import { motion } from "framer-motion";
 
 const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState({ totalCourses: 0, completedCourses: 0 });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Quick fetch just for stats (optional, could simply rely on dedicated stats endpoint or reuse playlists)
     const fetchStats = async () => {
       try {
-        const { data } = await api.get("/api/playlists");
+        const [response] = await Promise.all([
+          api.get("/api/playlists"),
+          new Promise(resolve => setTimeout(resolve, 800))
+        ]);
+        const data = response.data;
         setDashboardData({
           totalCourses: data.length,
           completedCourses: data.filter(pl => pl.percent === 100).length
         });
       } catch (error) {
         console.error(error);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchStats();
   }, []);
+
+  if (isLoading) {
+    return <DashboardSkeleton />;
+  }
 
 
   const container = {

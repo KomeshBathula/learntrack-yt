@@ -31,7 +31,7 @@ class SummarizationService {
                         content: `${prompt}\n\nTranscript:\n${transcript.substring(0, 15000)}` // Truncate to avoid context limit issues roughly
                     }
                 ],
-                model: "llama-3.3-70b-versatile", // Updated to latest versatile model
+                model: "llama-3.1-8b-instant", // Switch to faster model to avoid rate limits
                 temperature: 0.5,
             });
 
