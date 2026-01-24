@@ -18,9 +18,9 @@ class QuestionService {
                         content: `You are a teacher creating a quiz from a video transcript. ${langPrompt}
                         Generate a valid JSON array of question objects.
                         Rules:
-                        1. Output ONLY valid JSON. No markdown, no "Here is the JSON", no backticks.
-                        2. Array format: [{"question": "...", "options": ["A", "B", "C", "D"], "answer": "A", "type": "MCQ", "difficulty": "Medium"}]
-                        3. Ensure "answer" matches one of the "options" exactly.
+                        1. Output ONLY valid JSON. No markdown, no "Here is the JSON".
+                        2. Array format: [{"question": "What is the capital of France?", "options": ["Paris", "London", "Berlin", "Madrid"], "answer": "Paris", "difficulty": "Medium"}]
+                        3. The "answer" field MUST be the EXACT string content of the correct option. Do NOT use "A", "B", "C", "D" unless those are the actual option texts.
                         4. Create 5 questions.`
                     },
                     {

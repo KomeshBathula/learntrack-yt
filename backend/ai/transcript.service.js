@@ -50,8 +50,8 @@ class TranscriptService {
                 return text;
             }
         } catch (err) {
-            console.log(`[Transcript] Strategy 1 Failed: ${err.message}`);
-            lastError = err;
+            console.log(`[Transcript] Strategy 1 (InnerTube) skipped. Moving to next strategy.`);
+            // lastError = err; // Don't store this, it's just a try
         }
 
         // --- STRATEGY 2: Standard youtube-transcript (Web Scraping) ---

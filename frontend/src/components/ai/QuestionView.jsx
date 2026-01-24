@@ -22,13 +22,37 @@ const QuestionView = ({ questions }) => {
         setSelectedAnswers(prev => ({ ...prev, [qIdx]: option }));
     };
 
+    const areEqual = (a, b) => {
+        if (!a || !b) return false;
+        return String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
+    };
+
+    const checkAnswer = (question, selectedOpt) => {
+        if (!selectedOpt) return false;
+
+        // 1. Direct text match (Case-insensitive)
+        if (areEqual(selectedOpt, question.answer)) return true;
+
+        // 2. Fallback: Check if answer is a letter (A, B, C, D) and maps to the index
+        const cleanAnswer = String(question.answer).trim().toUpperCase();
+        if (/^[A-D]$/.test(cleanAnswer)) {
+            const selectedIdx = question.options.findIndex(opt => areEqual(opt, selectedOpt));
+            if (selectedIdx === -1) return false;
+
+            const correctIdx = cleanAnswer.charCodeAt(0) - 65; // A=0, B=1...
+            return selectedIdx === correctIdx;
+        }
+
+        return false;
+    };
+
     const handleSubmit = async () => {
         setSubmitting(true);
         let score = 0;
         let newRevealed = {};
 
         questions.forEach((q, idx) => {
-            if (selectedAnswers[idx] === q.answer) {
+            if (checkAnswer(q, selectedAnswers[idx])) {
                 score++;
             }
             newRevealed[idx] = true;
@@ -48,7 +72,7 @@ const QuestionView = ({ questions }) => {
             await api.post('/api/auth/quiz-result', {
                 score,
                 total: questions.length,
-                topic: "AI Generated Quiz" // ideally pass video title if available
+                topic: "AI Generated Quiz"
             });
         } catch (error) {
             console.error("Failed to save quiz result", error);
@@ -102,7 +126,7 @@ const QuestionView = ({ questions }) => {
                         <div className="space-y-2">
                             {q.options && q.options.map((opt, i) => {
                                 const isSelected = selectedAnswers[idx] === opt;
-                                const isCorrect = opt === q.answer;
+                                const isCorrect = checkAnswer(q, opt); // Check if THIS option is the correct one
                                 const isRevealed = revealed[idx];
 
                                 let btnClass = "bg-black/30 text-gray-400 hover:bg-black/50 border-transparent";

@@ -65,17 +65,31 @@ exports.getHeatmapData = async (req, res) => {
             query.playlist = req.query.playlistId;
         }
 
-        // 1. Get all completed video timestamps
-        const activities = await Progress.find(query).select('updatedAt');
+        // 1. Get all completed video timestamps (Progress)
+        const videoActivities = await Progress.find(query).select('updatedAt');
 
-        // 2. Group by Date (YYYY-MM-DD)
+        // 2. Get all quiz timestamps (User.quizResults)
+        const user = await User.findById(req.user._id).select('quizResults');
+        const quizActivities = user ? user.quizResults : []; // These have a 'date' field
+
+        // 3. Group by Date (YYYY-MM-DD)
         const activityMap = {};
-        activities.forEach(act => {
+
+        // Process Videos
+        videoActivities.forEach(act => {
             const date = act.updatedAt.toISOString().split('T')[0];
             activityMap[date] = (activityMap[date] || 0) + 1;
         });
 
-        // 3. Convert to Array
+        // Process Quizzes
+        quizActivities.forEach(quiz => {
+            if (quiz.date) {
+                const date = quiz.date.toISOString().split('T')[0];
+                activityMap[date] = (activityMap[date] || 0) + 1;
+            }
+        });
+
+        // 4. Convert to Array and Sort
         const heatmapData = Object.keys(activityMap).map(date => ({
             date,
             count: activityMap[date]

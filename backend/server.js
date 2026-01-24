@@ -26,9 +26,19 @@ app.use(helmet());
 app.use(morgan('dev'));
 
 // Database Connection
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB Connected'))
-    .catch((err) => console.error('MongoDB Connection Error:', err));
+// Database Connection with Retry
+const connectDB = async () => {
+    try {
+        await mongoose.connect(process.env.MONGO_URI, { family: 4 });
+        console.log('MongoDB Connected');
+    } catch (err) {
+        console.error('MongoDB Connection Error:', err.message);
+        console.log('Retrying connection in 5 seconds...');
+        setTimeout(connectDB, 5000);
+    }
+};
+
+connectDB();
 
 // Routes (Placeholders for now)
 app.get('/', (req, res) => {
