@@ -92,28 +92,30 @@ class TranscriptService {
         throw new Error(`All transcript strategies failed. Last error: ${lastError?.message}`);
     }
 
+    static getBinaryPath(binary) {
+        // Check local bin first (Render/Deployment)
+        const localPath = path.resolve(__dirname, '..', '..', 'bin', binary);
+        if (fs.existsSync(localPath)) {
+            console.log(`[Transcript] Using local binary: ${localPath}`);
+            return localPath;
+        }
+        // Fallback to global path
+        return binary;
+    }
+
     static async fetchSubtitlesWithYtDlp(url, videoId) {
         // Output template for subs
         const tempBase = path.resolve(__dirname, `temp_subs_${videoId}`);
 
-        // Command to fetch subs. Try manual subs first, then auto.
-        // We use --skip-download to only get subs.
-        // We convert to srt for easier parsing.
-
         try {
             console.log('[Transcript] Attempting yt-dlp subtitle fetch...');
-            // Try fetching English subs (auto or manual)
-            // --write-sub: write manual subs
-            // --write-auto-sub: write auto subs
-            // --sub-lang en,en-US,en-GB: languages
-            // --output: path template
 
-            const cmd = `yt-dlp --write-sub --write-auto-sub --sub-lang "en,en-US,en-GB,en-orig" --skip-download --convert-subs srt --output "${tempBase}" "${url}"`;
+            const ytDlpPath = this.getBinaryPath('yt-dlp');
+            const cmd = `${ytDlpPath} --write-sub --write-auto-sub --sub-lang "en,en-US,en-GB,en-orig" --skip-download --convert-subs srt --output "${tempBase}" "${url}"`;
 
             await execPromise(cmd);
 
             // yt-dlp creates files like temp_subs_ID.en.srt
-            // We need to find the created file.
             const dir = path.dirname(tempBase);
             const files = fs.readdirSync(dir);
             const subFile = files.find(f => f.startsWith(`temp_subs_${videoId}`) && f.endsWith('.srt'));
@@ -129,7 +131,6 @@ class TranscriptService {
                 try { fs.unlinkSync(path.join(dir, f)); } catch (e) { }
             });
 
-            // Parse SRT to text
             return this.parseSrt(content);
 
         } catch (error) {
@@ -146,26 +147,19 @@ class TranscriptService {
     }
 
     static parseSrt(srtContent) {
-        // Simple SRT parser
-        // Remove timestamps and indices
         const lines = srtContent.split(/\r?\n/);
         const textLines = [];
 
         for (const line of lines) {
-            // Skip indices (numeric only lines)
             if (/^\d+$/.test(line.trim())) continue;
-            // Skip timestamps
             if (line.includes('-->')) continue;
-            // Skip empty lines
             if (!line.trim()) continue;
 
-            // Add unique lines (dedupe consecutive)
             const cleanLine = line.trim();
             if (textLines.length === 0 || textLines[textLines.length - 1] !== cleanLine) {
                 textLines.push(cleanLine);
             }
         }
-
         return textLines.join(' ');
     }
 
@@ -174,10 +168,10 @@ class TranscriptService {
 
         try {
             console.log('[Transcript] Downloading audio with yt-dlp...');
-            // Use yt-dlp to download audio
-            // -x: extract audio
-            // --audio-format mp3
-            const cmd = `yt-dlp -x --audio-format mp3 -o "${tempPath}" "${url}"`;
+
+            const ytDlpPath = this.getBinaryPath('yt-dlp');
+            const cmd = `${ytDlpPath} -x --audio-format mp3 -o "${tempPath}" "${url}"`;
+
             await execPromise(cmd);
 
             if (!fs.existsSync(tempPath)) {
