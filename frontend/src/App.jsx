@@ -9,6 +9,7 @@ import Profile from './pages/Profile';
 import AiLearning from './pages/AiLearning';
 import Layout from './components/Layout';
 import LoadingScreen from './components/LoadingScreen';
+import AboutCreators from './pages/AboutCreators';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -53,6 +54,13 @@ const router = createBrowserRouter(
         <ProtectedRoute>
           <Layout>
             <AiLearning />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/about-creators" element={
+        <ProtectedRoute>
+          <Layout>
+            <AboutCreators />
           </Layout>
         </ProtectedRoute>
       } />

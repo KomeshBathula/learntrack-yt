@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Home, User, LayoutGrid, Brain } from 'lucide-react';
+import { LogOut, Home, User, LayoutGrid, Brain, Users } from 'lucide-react';
 import MiniPlayer from './MiniPlayer';
 import GrokChat from './GrokChat';
 
@@ -44,6 +44,16 @@ const Layout = ({ children }) => {
                 </div>
 
                 <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => navigate('/about-creators')}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all ${location.pathname === '/about-creators'
+                            ? 'bg-primary/10 border-primary/20 text-primary shadow-[0_0_15px_rgba(168,85,247,0.15)]'
+                            : 'bg-white/5 border-white/10 text-zinc-400 hover:text-white hover:bg-white/10'
+                            }`}
+                    >
+                        <Users size={16} />
+                        <span className="text-sm font-medium">Team</span>
+                    </button>
 
                     <button
                         onClick={handleLogout}
