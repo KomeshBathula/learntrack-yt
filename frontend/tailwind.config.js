@@ -24,7 +24,6 @@ export default {
                 'spin-reverse': 'spin-reverse 3s linear infinite',
                 'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
                 'loading-bar': 'loadingBar 2s ease-in-out infinite',
-                'shine': 'shine 3s infinite',
             },
             keyframes: {
                 fadeIn: {
@@ -48,9 +47,6 @@ export default {
                     '50%': { transform: 'translateX(0%)' },
                     '100%': { transform: 'translateX(100%)' },
                 },
-                shine: {
-                    '100%': { left: '200%' },
-                }
             },
             backgroundImage: {
                 'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

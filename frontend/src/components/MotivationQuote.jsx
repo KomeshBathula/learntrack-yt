@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Quote, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -6,22 +6,38 @@ const CATEGORIES = ["motivation", "inspirational", "success", "learning", "wisdo
 const MAX_QUOTE_LENGTH = 120;
 const MAX_RETRIES = 3;
 
+const FALLBACKS = [
+    { id: 1, quote: "The only limit to our realization of tomorrow is our doubts of today.", author: "Franklin D. Roosevelt", category: "Motivation" },
+    { id: 2, quote: "The best way to predict the future is to invent it.", author: "Alan Kay", category: "Innovation" },
+    { id: 3, quote: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill", category: "Success" },
+    { id: 4, quote: "The secret of getting ahead is getting started.", author: "Mark Twain", category: "Motivation" },
+    { id: 5, quote: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius", category: "Wisdom" },
+    { id: 6, quote: "Believe you can and you're halfway there.", author: "Theodore Roosevelt", category: "Motivation" },
+    { id: 7, quote: "Act as if what you do makes a difference. It does.", author: "William James", category: "Inspirational" },
+];
+
+const STORAGE_KEY = "learntrack_daily_quote";
+
+const getTodayKey = () => new Date().toISOString().slice(0, 10);
+
 const MotivationQuote = () => {
     const [quoteData, setQuoteData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
-    const fallbacks = [
-        { id: 1, quote: "The only limit to our realization of tomorrow is our doubts of today.", author: "Franklin D. Roosevelt", category: "Motivation" },
-        { id: 2, quote: "The best way to predict the future is to invent it.", author: "Alan Kay", category: "Innovation" },
-        { id: 3, quote: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill", category: "Success" },
-        { id: 4, quote: "The secret of getting ahead is getting started.", author: "Mark Twain", category: "Motivation" },
-        { id: 5, quote: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius", category: "Wisdom" },
-        { id: 6, quote: "Believe you can and you're halfway there.", author: "Theodore Roosevelt", category: "Motivation" },
-        { id: 7, quote: "Act as if what you do makes a difference. It does.", author: "William James", category: "Inspirational" },
-    ];
+    const fetchQuote = useCallback(async (forceRefresh = false) => {
+        // Check localStorage cache for today's quote
+        if (!forceRefresh) {
+            try {
+                const cached = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+                if (cached.date === getTodayKey() && cached.quote) {
+                    setQuoteData(cached.quote);
+                    setIsLoading(false);
+                    return;
+                }
+            } catch { /* ignore parse errors */ }
+        }
 
-    const fetchQuote = async () => {
         setIsRefreshing(true);
         setIsLoading(true);
         try {
@@ -37,24 +53,22 @@ const MotivationQuote = () => {
                     break;
                 }
             }
-            if (validQuote) {
-                setQuoteData(validQuote);
-            } else {
-                // All retries returned long quotes, use a fallback
-                setQuoteData(fallbacks[Math.floor(Math.random() * fallbacks.length)]);
-            }
+            const finalQuote = validQuote || FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)];
+            setQuoteData(finalQuote);
+            // Cache the quote for today
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: getTodayKey(), quote: finalQuote }));
         } catch (err) {
             console.error("Error fetching quote:", err);
-            setQuoteData(fallbacks[Math.floor(Math.random() * fallbacks.length)]);
+            setQuoteData(FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)]);
         } finally {
             setIsLoading(false);
             setIsRefreshing(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         fetchQuote();
-    }, []);
+    }, [fetchQuote]);
 
     return (
         <div className="w-full">
@@ -70,15 +84,16 @@ const MotivationQuote = () => {
                             <div className="p-2 bg-gradient-to-br from-primary/15 to-purple-500/15 rounded-lg text-primary border border-primary/10">
                                 <Quote size={14} fill="currentColor" />
                             </div>
-                            <span className="text-zinc-500 text-[10px] font-semibold tracking-[0.2em] uppercase">Daily Motivation</span>
+                            <span className="text-zinc-500 text-[10px] font-semibold tracking-[0.2em] uppercase">Motivation</span>
                         </div>
                         <motion.button
-                            onClick={fetchQuote}
+                            onClick={() => fetchQuote(true)}
                             disabled={isRefreshing}
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                             className="p-2 text-zinc-500 hover:text-primary hover:bg-primary/5 rounded-lg transition-all border border-transparent hover:border-primary/10"
                             title="New Quote"
+                            aria-label="Fetch new quote"
                         >
                             <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
                         </motion.button>
