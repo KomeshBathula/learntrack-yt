@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import api from "../utils/api";
 import { Link } from "react-router-dom";
-import { PlayCircle, Zap, LayoutGrid, ArrowRight } from "lucide-react";
+import { Zap, LayoutGrid, ArrowRight, Target, TrendingUp } from "lucide-react";
 import StudyHeatmap from "../components/StudyHeatmap";
 import JumpBackIn from "../components/JumpBackIn";
+import MotivationQuote from "../components/MotivationQuote";
 import DashboardSkeleton from "../components/DashboardSkeleton";
 import { motion } from "framer-motion";
 
@@ -12,7 +13,6 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Quick fetch just for stats (optional, could simply rely on dedicated stats endpoint or reuse playlists)
     const fetchStats = async () => {
       try {
         const [response] = await Promise.all([
@@ -37,6 +37,9 @@ const Dashboard = () => {
     return <DashboardSkeleton />;
   }
 
+  const completionRate = dashboardData.totalCourses > 0
+    ? Math.round((dashboardData.completedCourses / dashboardData.totalCourses) * 100)
+    : 0;
 
   const container = {
     hidden: { opacity: 0 },
@@ -106,27 +109,65 @@ const Dashboard = () => {
               </div>
             </Link>
           </motion.section>
+
+          {/* Motivation Quote Section */}
+          <motion.section variants={item}>
+            <MotivationQuote />
+          </motion.section>
         </div>
 
-        {/* Sidebar: Heatmap */}
+        {/* Sidebar: Heatmap + Progress */}
         <motion.div variants={item} className="xl:w-[350px] shrink-0 space-y-6">
           <div className="sticky top-24">
             <StudyHeatmap />
 
-            {/* Mini Motivation Card */}
-            <div className="mt-6 bg-gradient-to-br from-primary/10 to-transparent p-5 rounded-3xl border border-primary/20 relative overflow-hidden">
-              <div className="flex items-start gap-4 relative z-10">
-                <div className="p-3 bg-primary/20 rounded-xl text-primary">
-                  <Zap size={24} fill="currentColor" />
+            {/* Learning Progress Card */}
+            <div className="mt-6 bg-gradient-to-br from-zinc-900/80 to-black/60 p-6 rounded-[2rem] border border-white/[0.06] relative overflow-hidden">
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="p-2.5 bg-gradient-to-br from-amber-500/15 to-orange-500/15 rounded-xl text-amber-400 border border-amber-500/10">
+                    <Target size={18} />
+                  </div>
+                  <h4 className="font-bold text-white tracking-tight">Your Progress</h4>
                 </div>
-                <div>
-                  <h4 className="font-bold text-white">Daily Tip</h4>
-                  <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-                    Small steps every day add up to big results. Keep the streak alive!
-                  </p>
+
+                {/* Progress Ring */}
+                <div className="flex items-center gap-5 mb-5">
+                  <div className="relative w-16 h-16 shrink-0">
+                    <svg className="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
+                      <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" className="text-white/[0.04]" />
+                      <circle
+                        cx="32" cy="32" r="28" fill="none" stroke="url(#progressGradient)" strokeWidth="4"
+                        strokeLinecap="round"
+                        strokeDasharray={`${completionRate * 1.76} 176`}
+                        className="transition-all duration-1000"
+                      />
+                      <defs>
+                        <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#f59e0b" />
+                          <stop offset="100%" stopColor="#ef4444" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-sm font-bold text-white">{completionRate}%</span>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold text-lg">{dashboardData.completedCourses}/{dashboardData.totalCourses}</p>
+                    <p className="text-zinc-500 text-xs">courses completed</p>
+                  </div>
+                </div>
+
+                {/* Quick Stat */}
+                <div className="flex items-center gap-2 text-xs text-zinc-400 bg-white/[0.02] p-3 rounded-xl border border-white/[0.04]">
+                  <TrendingUp size={14} className="text-green-400" />
+                  <span>Keep going! Every step counts toward your goal.</span>
                 </div>
               </div>
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-[50px] rounded-full -translate-y-1/2 translate-x-1/2" />
+
+              {/* Decorative Glow */}
+              <div className="absolute top-0 right-0 w-28 h-28 bg-amber-500/10 blur-[60px] rounded-full -translate-y-1/2 translate-x-1/2" />
             </div>
           </div>
         </motion.div>
