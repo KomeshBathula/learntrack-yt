@@ -47,7 +47,7 @@ const LoadingScreen = () => {
                 <div className="flex flex-col items-center gap-3 h-20">
                     <h2 className="text-2xl font-bold tracking-tight">LearnTrackYT</h2>
 
-                    <div className="flex items-center gap-2 text-[var(--text-muted)] animate-fade-in-up key={messageIndex}">
+                    <div key={messageIndex} className="flex items-center gap-2 text-[var(--text-muted)] animate-fade-in-up">
                         <CurrentIcon size={18} className="animate-bounce" />
                         <span className="font-medium tracking-wide">
                             {loadingMessages[messageIndex].text}

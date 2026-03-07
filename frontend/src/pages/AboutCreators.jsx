@@ -7,6 +7,8 @@ const teamMembers = [
         name: 'Tadi Kodanda Ramreddy',
         initials: 'TR',
         role: 'Core Developer',
+        github: '',
+        linkedin: '',
         gradient: 'from-indigo-500 to-blue-600',
         accentBg: 'bg-indigo-500/10',
         accentBorder: 'border-indigo-500/20',
@@ -17,6 +19,7 @@ const teamMembers = [
         name: 'Kalluri Ramteja',
         initials: 'KR',
         role: 'Core Developer',
+        linkedin: '',
         gradient: 'from-purple-500 to-violet-600',
         accentBg: 'bg-purple-500/10',
         accentBorder: 'border-purple-500/20',
@@ -28,6 +31,8 @@ const teamMembers = [
         name: 'Yaswanth Chowdary',
         initials: 'YC',
         role: 'Core Developer',
+        github: '',
+        linkedin: '',
         gradient: 'from-emerald-500 to-teal-600',
         accentBg: 'bg-emerald-500/10',
         accentBorder: 'border-emerald-500/20',
@@ -38,6 +43,8 @@ const teamMembers = [
         name: 'Priyanka Vangala',
         initials: 'PV',
         role: 'Core Developer',
+        github: '',
+        linkedin: '',
         gradient: 'from-rose-500 to-pink-600',
         accentBg: 'bg-rose-500/10',
         accentBorder: 'border-rose-500/20',
@@ -101,22 +108,28 @@ const AboutCreators = () => {
 
                             {/* Social Links */}
                             <div className="flex items-center gap-3 mt-auto">
-                                <a
-                                    href={member.github || '#'}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="p-2.5 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--skeleton)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all hover:scale-110"
-                                >
-                                    <Github className="w-4 h-4" />
-                                </a>
-                                <a
-                                    href="#"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="p-2.5 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--skeleton)] text-[var(--text-muted)] hover:text-blue-400 transition-all hover:scale-110"
-                                >
-                                    <Linkedin className="w-4 h-4" />
-                                </a>
+                                {member.github && (
+                                    <a
+                                        href={member.github}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="p-2.5 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--skeleton)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all hover:scale-110"
+                                        aria-label={`${member.name}'s GitHub`}
+                                    >
+                                        <Github className="w-4 h-4" />
+                                    </a>
+                                )}
+                                {member.linkedin && (
+                                    <a
+                                        href={member.linkedin}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="p-2.5 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--skeleton)] text-[var(--text-muted)] hover:text-blue-400 transition-all hover:scale-110"
+                                        aria-label={`${member.name}'s LinkedIn`}
+                                    >
+                                        <Linkedin className="w-4 h-4" />
+                                    </a>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -143,11 +156,8 @@ const AboutCreators = () => {
                         <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-medium">Helped with Development</p>
                     </div>
                     <div className="flex items-center gap-2 ml-2">
-                        <a href="https://github.com/KomeshBathula" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all hover:scale-110">
+                        <a href="https://github.com/KomeshBathula" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all hover:scale-110" aria-label="Komesh Bathula's GitHub">
                             <Github className="w-4 h-4" />
-                        </a>
-                        <a href="#" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-blue-400 transition-all hover:scale-110">
-                            <Linkedin className="w-4 h-4" />
                         </a>
                     </div>
                 </div>

@@ -65,10 +65,21 @@
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  /* Smooth transition for theme switches on all elements */
-  *,
-  *::before,
-  *::after {
+  /* Smooth transition for theme switches on key elements */
+  body,
+  nav,
+  main,
+  button,
+  a,
+  input,
+  textarea,
+  select,
+  .glass-card,
+  .glass-panel,
+  .themed-bg,
+  .themed-surface,
+  .themed-border,
+  .themed-card {
     transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   }
 }

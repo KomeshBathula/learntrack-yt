@@ -14,7 +14,7 @@ const CoursesSkeleton = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
                 {Array.from({ length: 8 }).map((_, i) => (
-                    <div key={i} className="h-[320px] rounded-3xl border border-white/5 bg-surface/30 p-5 flex flex-col gap-4">
+                    <div key={i} className="h-[320px] rounded-3xl border border-[var(--border)] bg-[var(--card-bg)] p-5 flex flex-col gap-4">
                         <Skeleton className="w-full aspect-video rounded-xl" />
                         <div className="space-y-2 flex-1">
                             <Skeleton className="h-6 w-full" />
