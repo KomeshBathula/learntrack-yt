@@ -29,28 +29,38 @@ class TranscriptService {
         const normalizedUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
         // --- STRATEGY 1: InnerTube (simulates real client) ---
+        // youtubei.js v16.0.1 dumps verbose parser errors to console even on
+        // non-fatal failures. Suppress that noise during this strategy.
         try {
-            console.log('[Transcript] Strategy 1: InnerTube (Android Client)...');
-            const youtube = await Innertube.create({
-                cache: new UniversalCache(false),
-                generate_session_locally: true
-            });
+            console.log('[Transcript] Strategy 1: InnerTube...');
+            const _err = console.error;
+            const _warn = console.warn;
+            console.error = () => {};
+            console.warn = () => {};
+            let text;
+            try {
+                const youtube = await Innertube.create({
+                    cache: new UniversalCache(false),
+                    generate_session_locally: true
+                });
+                const info = await youtube.getInfo(videoId);
+                const transcriptData = await info.getTranscript();
 
-            const info = await youtube.getInfo(videoId);
-            const transcriptData = await info.getTranscript();
-
-            if (transcriptData?.transcript?.content?.body?.initial_segments) {
-                const text = transcriptData.transcript.content.body.initial_segments
-                    .map(seg => seg.snippet.text)
-                    .join(' ');
-
-                if (!text || text.length < 50) {
-                    throw new Error('InnerTube returned empty/short transcript');
+                if (transcriptData?.transcript?.content?.body?.initial_segments) {
+                    text = transcriptData.transcript.content.body.initial_segments
+                        .map(seg => seg.snippet.text)
+                        .join(' ');
                 }
+            } finally {
+                console.error = _err;
+                console.warn = _warn;
+            }
 
+            if (text && text.length >= 50) {
                 console.log('[Transcript] Strategy 1 Success!');
                 return text;
             }
+            throw new Error('InnerTube returned empty/short transcript');
         } catch (err) {
             console.log(`[Transcript] Strategy 1 (InnerTube) failed: ${err.message}`);
             lastError = err;
@@ -132,7 +142,9 @@ class TranscriptService {
                 try { fs.unlinkSync(path.join(dir, f)); } catch (e) { }
             });
 
-            return this.parseSrt(content);
+            const parsed = this.parseSrt(content);
+            console.log(`[Transcript] Strategy 3 Success! (${parsed.length} chars)`);
+            return parsed;
 
         } catch (error) {
             // Cleanup on error
