@@ -34,7 +34,7 @@ const AiLearning = () => {
             onClick={() => setActiveTab(id)}
             className={`px-6 py-3 rounded-full text-sm font-medium transition-all ${activeTab === id
                 ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
-                : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                : 'bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:bg-[var(--bg-hover)]'
                 }`}
         >
             {label}
@@ -42,7 +42,7 @@ const AiLearning = () => {
     );
 
     return (
-        <div className="min-h-screen bg-black text-white p-4 pb-24 md:p-8">
+        <div className="min-h-screen bg-[var(--bg)] text-[var(--text-primary)] p-4 pb-24 md:p-8">
             <div className="max-w-5xl mx-auto space-y-8">
 
                 {/* Header */}
@@ -50,7 +50,7 @@ const AiLearning = () => {
                     <h1 className="text-3xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 tracking-tight leading-tight">
                         Smart Summary
                     </h1>
-                    <p className="text-gray-400 text-sm md:text-lg max-w-xs md:max-w-2xl mx-auto">Transform any YouTube video into a personalized study guide</p>
+                    <p className="text-[var(--text-muted)] text-sm md:text-lg max-w-xs md:max-w-2xl mx-auto">Transform any YouTube video into a personalized study guide</p>
                 </div>
 
                 {/* Input Section */}

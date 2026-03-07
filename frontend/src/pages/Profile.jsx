@@ -96,7 +96,7 @@ const Profile = () => {
 
                         {/* Avatar Ring */}
                         <div className="relative shrink-0">
-                            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-surface border-4 border-surface shadow-2xl flex items-center justify-center relative z-10">
+                            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-[var(--bg-surface)] border-4 border-[var(--bg-surface)] shadow-2xl flex items-center justify-center relative z-10">
                                 <span className="text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary">
                                     {user?.username?.charAt(0).toUpperCase()}
                                 </span>
@@ -119,7 +119,7 @@ const Profile = () => {
                                             type="text"
                                             value={newUsername}
                                             onChange={(e) => setNewUsername(e.target.value)}
-                                            className="bg-black/40 border border-white/20 rounded-xl px-5 py-3 text-2xl md:text-4xl font-bold text-white focus:outline-none focus:border-primary w-full md:w-auto min-w-[300px]"
+                                            className="bg-[var(--input-bg)] border border-[var(--border)] rounded-xl px-5 py-3 text-2xl md:text-4xl font-bold text-[var(--text-primary)] focus:outline-none focus:border-primary w-full md:w-auto min-w-[300px]"
                                             autoFocus
                                             placeholder="Enter username"
                                         />
@@ -127,19 +127,19 @@ const Profile = () => {
                                             <button onClick={handleUpdateProfile} className="p-3 bg-primary hover:bg-primary/80 rounded-xl text-white transition-colors">
                                                 <Check size={20} />
                                             </button>
-                                            <button onClick={() => setIsEditing(false)} className="p-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-zinc-400 hover:text-white transition-colors">
+                                            <button onClick={() => setIsEditing(false)} className="p-3 bg-[var(--skeleton)] hover:bg-[var(--bg-hover)] rounded-xl text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
                                                 <X size={20} />
                                             </button>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="flex items-center justify-center md:justify-start gap-4 group/edit">
-                                        <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight">
+                                        <h1 className="text-4xl md:text-6xl font-black text-[var(--text-primary)] tracking-tight">
                                             {user?.username}
                                         </h1>
                                         <button
                                             onClick={() => setIsEditing(true)}
-                                            className="opacity-0 group-hover/edit:opacity-100 transition-all p-2 hover:bg-white/10 rounded-lg text-zinc-500 hover:text-white"
+                                            className="opacity-0 group-hover/edit:opacity-100 transition-all p-2 hover:bg-[var(--bg-hover)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                                             title="Edit Profile"
                                         >
                                             <Edit2 size={20} />
@@ -148,29 +148,29 @@ const Profile = () => {
                                 )}
                             </div>
 
-                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-8 gap-y-3 text-zinc-400 text-sm md:text-base">
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-8 gap-y-3 text-[var(--text-secondary)] text-sm md:text-base">
                                 <span className="flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
                                     Online Status
                                 </span>
                                 <span className="flex items-center gap-2">
-                                    <Calendar size={16} className="text-zinc-500" />
+                                    <Calendar size={16} className="text-[var(--text-muted)]" />
                                     {user?.email}
                                 </span>
                             </div>
                         </div>
 
                         {/* Quick Stats on Desktop */}
-                        <div className="hidden md:flex flex-col gap-4 min-w-[200px] border-l border-white/5 pl-8">
+                        <div className="hidden md:flex flex-col gap-4 min-w-[200px] border-l border-[var(--border)] pl-8">
                             <div className="text-right">
-                                <p className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Level</p>
-                                <p className="text-3xl font-bold text-white">
+                                <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider font-semibold">Level</p>
+                                <p className="text-3xl font-bold text-[var(--text-primary)]">
                                     {(completedPlaylists.length < 1) ? "Novice" :
                                         (completedPlaylists.length < 5) ? "Scholar" : "Master"}
                                 </p>
                             </div>
                             <div className="text-right">
-                                <p className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Courses</p>
+                                <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider font-semibold">Courses</p>
                                 <div className="flex items-center justify-end gap-1 text-orange-500 font-bold text-xl">
                                     <Award size={20} fill="currentColor" /> {completedPlaylists.length} Done
                                 </div>
@@ -197,13 +197,13 @@ const Profile = () => {
                                 {completedPlaylists.length > 0 ? (
                                     completedPlaylists.map(pl => (
                                         <Link to={`/playlist/${pl._id}`} key={pl._id} className="block group">
-                                            <div className="bg-black/20 hover:bg-white/5 border border-white/5 hover:border-primary/30 rounded-xl p-3 flex items-center gap-3 transition-all duration-300">
-                                                <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-white/10">
+                                            <div className="bg-[var(--input-bg)] hover:bg-[var(--bg-hover)] border border-[var(--border)] hover:border-primary/30 rounded-xl p-3 flex items-center gap-3 transition-all duration-300">
+                                                <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-[var(--border)]">
                                                     <img src={pl.thumbnail} alt={pl.title} className="w-full h-full object-cover" />
                                                 </div>
                                                 <div className="min-w-0 flex-1">
-                                                    <h4 className="text-sm font-medium text-zinc-200 group-hover:text-primary transition-colors truncate">{pl.title}</h4>
-                                                    <p className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Completed</p>
+                                                    <h4 className="text-sm font-medium text-[var(--text-secondary)] group-hover:text-primary transition-colors truncate">{pl.title}</h4>
+                                                    <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mt-1">Completed</p>
                                                 </div>
                                                 <div className="w-6 h-6 rounded-full bg-yellow-500/10 flex items-center justify-center">
                                                     <Award size={12} className="text-yellow-500" />
@@ -212,26 +212,26 @@ const Profile = () => {
                                         </Link>
                                     ))
                                 ) : (
-                                    <div className="h-40 flex flex-col items-center justify-center text-center p-4 border border-dashed border-white/10 rounded-2xl bg-white/5">
-                                        <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
+                                    <div className="h-40 flex flex-col items-center justify-center text-center p-4 border border-dashed border-[var(--border)] rounded-2xl bg-[var(--bg-elevated)]">
+                                        <div className="w-12 h-12 rounded-full bg-[var(--skeleton)] flex items-center justify-center mb-3">
                                             <Award className="text-zinc-600" size={24} />
                                         </div>
-                                        <p className="text-sm text-zinc-400 font-medium">No Trophies Yet</p>
-                                        <p className="text-xs text-zinc-600 mt-1">Complete a playlist to earn badges!</p>
+                                        <p className="text-sm text-[var(--text-secondary)] font-medium">No Trophies Yet</p>
+                                        <p className="text-xs text-[var(--text-muted)] mt-1">Complete a playlist to earn badges!</p>
                                     </div>
                                 )}
                             </div>
 
-                            <div className="pt-6 mt-6 border-t border-white/5">
+                            <div className="pt-6 mt-6 border-t border-[var(--border)]">
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-zinc-500">Total Hours</span>
-                                    <span className="text-white font-mono">
+                                    <span className="text-[var(--text-muted)]">Total Hours</span>
+                                    <span className="text-[var(--text-primary)] font-mono">
                                         {(completedPlaylists.length > 0
                                             ? completedPlaylists.reduce((acc, pl) => acc + (pl.totalDurationSeconds || 0), 0) / 3600
                                             : 0).toFixed(1)}h
                                     </span>
                                 </div>
-                                <div className="w-full bg-white/5 h-1.5 rounded-full mt-2 overflow-hidden">
+                                <div className="w-full bg-[var(--skeleton)] h-1.5 rounded-full mt-2 overflow-hidden">
                                     <div
                                         className="bg-gradient-to-r from-primary to-secondary h-full rounded-full transition-all duration-1000"
                                         style={{ width: `${Math.min(((completedPlaylists.length / 10) * 100), 100)}%` }}
@@ -252,9 +252,9 @@ const Profile = () => {
                     {user?.quizResults?.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {user.quizResults.slice().reverse().map((quiz, idx) => (
-                                <div key={idx} className="bg-white/5 border border-white/5 hover:bg-white/10 hover:border-purple-500/30 rounded-2xl p-4 transition-all group">
+                                <div key={idx} className="bg-[var(--bg-elevated)] border border-[var(--border)] hover:bg-[var(--bg-hover)] hover:border-purple-500/30 rounded-2xl p-4 transition-all group">
                                     <div className="flex justify-between items-start mb-3">
-                                        <div className="text-sm font-medium text-zinc-300 line-clamp-1 pr-2" title={quiz.topic}>
+                                        <div className="text-sm font-medium text-[var(--text-secondary)] line-clamp-1 pr-2" title={quiz.topic}>
                                             {quiz.topic || 'General Knowledge'}
                                         </div>
                                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${quiz.percentage >= 80 ? 'bg-green-500/20 text-green-400' :
@@ -267,12 +267,12 @@ const Profile = () => {
 
                                     <div className="flex items-end justify-between">
                                         <div>
-                                            <div className="text-xs text-zinc-500">Score</div>
-                                            <div className="text-lg font-bold text-white leading-none mt-1">
+                                            <div className="text-xs text-[var(--text-muted)]">Score</div>
+                                            <div className="text-lg font-bold text-[var(--text-primary)] leading-none mt-1">
                                                 {quiz.score}/{quiz.total}
                                             </div>
                                         </div>
-                                        <div className="text-[10px] text-zinc-600">
+                                        <div className="text-[10px] text-[var(--text-muted)]">
                                             {new Date(quiz.date).toLocaleDateString()}
                                         </div>
                                     </div>
@@ -280,8 +280,8 @@ const Profile = () => {
                             ))}
                         </div>
                     ) : (
-                        <div className="bg-white/5 border border-dashed border-white/10 rounded-2xl p-8 text-center">
-                            <p className="text-zinc-500">No quizzes taken yet. Go to Summary page to take a quiz!</p>
+                        <div className="bg-[var(--bg-elevated)] border border-dashed border-[var(--border)] rounded-2xl p-8 text-center">
+                            <p className="text-[var(--text-muted)]">No quizzes taken yet. Go to Summary page to take a quiz!</p>
                         </div>
                     )}
                 </motion.div>

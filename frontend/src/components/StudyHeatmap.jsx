@@ -12,7 +12,6 @@ import {
   isSameDay,
   differenceInCalendarDays,
   parseISO,
-  isFuture,
 } from "date-fns";
 import { ChevronLeft, ChevronRight, Flame } from "lucide-react";
 import api from "../utils/api";
@@ -44,7 +43,6 @@ const StudyHeatmap = () => {
       .sort((a, b) => a.date - b.date);
 
     let longestStreak = 0;
-    let currentStreak = 0;
     let tempStreak = 0;
 
     for (let i = 0; i < sortedActivity.length; i++) {
@@ -69,10 +67,9 @@ const StudyHeatmap = () => {
     const lastActivityDate = sortedActivity[sortedActivity.length - 1].date;
     const diffFromToday = differenceInCalendarDays(today, lastActivityDate);
 
+    let currentStreak = 0;
     if (diffFromToday <= 1) {
       currentStreak = tempStreak;
-    } else {
-      currentStreak = 0;
     }
 
     return { currentStreak, longestStreak };
@@ -81,8 +78,8 @@ const StudyHeatmap = () => {
   const { currentStreak, longestStreak } = calculateStreaks(activity);
 
   return (
-    <div className="bg-surface/60 backdrop-blur-xl p-5 rounded-[2rem] border border-white/5 shadow-2xl relative overflow-hidden group hover:border-white/10 transition-colors">
-      {/* Glow Effect behind */}
+    <div className="bg-[var(--card-bg)] backdrop-blur-xl p-5 rounded-[2rem] border border-[var(--border)] shadow-lg relative overflow-hidden group hover:border-[var(--border)] transition-colors">
+      {/* Glow Effect */}
       <div className="absolute -top-20 -right-20 w-40 h-40 bg-green-500/10 blur-[60px] rounded-full pointer-events-none" />
 
       {/* Header */}
@@ -92,19 +89,19 @@ const StudyHeatmap = () => {
             <Flame size={18} fill="currentColor" />
           </div>
           <div>
-            <h3 className="font-bold text-white leading-tight">Activity</h3>
-            <p className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">Heatmap</p>
+            <h3 className="font-bold text-[var(--text-primary)] leading-tight">Activity</h3>
+            <p className="text-[10px] text-[var(--text-muted)] font-medium uppercase tracking-wider">Heatmap</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-1 bg-black/40 rounded-lg p-1 border border-white/5">
-          <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1.5 hover:bg-white/10 rounded-md text-zinc-400 hover:text-white transition-colors">
+        <div className="flex items-center gap-1 bg-[var(--bg-hover)] rounded-lg p-1 border border-[var(--border)]">
+          <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1.5 hover:bg-[var(--bg-hover)] rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
             <ChevronLeft size={16} />
           </button>
-          <span className="text-xs font-bold w-24 text-center">
+          <span className="text-xs font-bold w-24 text-center text-[var(--text-primary)]">
             {format(currentMonth, "MMMM yyyy")}
           </span>
-          <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1.5 hover:bg-white/10 rounded-md text-zinc-400 hover:text-white transition-colors">
+          <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1.5 hover:bg-[var(--bg-hover)] rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
             <ChevronRight size={16} />
           </button>
         </div>
@@ -112,7 +109,7 @@ const StudyHeatmap = () => {
 
       {/* Grid */}
       <div className="mb-4 flex flex-col items-center">
-        <div className="grid grid-cols-7 gap-x-2 gap-y-2 mb-2 text-center text-[10px] font-bold text-zinc-600 uppercase tracking-widest w-full max-w-[320px]">
+        <div className="grid grid-cols-7 gap-x-2 gap-y-2 mb-2 text-center text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest w-full max-w-[320px]">
           {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <div key={i}>{d}</div>)}
         </div>
 
@@ -132,14 +129,14 @@ const StudyHeatmap = () => {
                             ${!isCurrentMonth ? 'opacity-0 pointer-events-none' : ''}
                             ${count > 0
                     ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.4)] text-black scale-100'
-                    : 'bg-white/5 text-transparent hover:bg-white/10 scale-90 hover:scale-100'}
+                    : 'bg-[var(--skeleton)] text-transparent hover:bg-[var(--bg-hover)] scale-90 hover:scale-100'}
                         `}
               >
                 {count > 0 && count}
 
                 {/* Tooltip */}
                 {isCurrentMonth && (
-                  <div className="absolute bottom-full mb-2 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/cell:opacity-100 pointer-events-none z-20 transition-opacity left-1/2 -translate-x-1/2 pointer-events-none">
+                  <div className="absolute bottom-full mb-2 bg-[var(--bg-surface)] text-[var(--text-primary)] text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/cell:opacity-100 pointer-events-none z-20 transition-opacity left-1/2 -translate-x-1/2 border border-[var(--border)] shadow-lg">
                     {format(day, 'MMM d')} • {count} tasks
                   </div>
                 )}
@@ -150,14 +147,14 @@ const StudyHeatmap = () => {
       </div>
 
       {/* Footer Stats */}
-      <div className="flex items-center gap-4 pt-4 border-t border-white/5">
-        <div className="flex-1 bg-white/5 rounded-xl p-3 text-center border border-white/5">
-          <p className="text-2xl font-black text-white">{currentStreak}</p>
-          <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Current Streak</p>
+      <div className="flex items-center gap-4 pt-4 border-t border-[var(--border)]">
+        <div className="flex-1 bg-[var(--skeleton)] rounded-xl p-3 text-center border border-[var(--border)]">
+          <p className="text-2xl font-black text-[var(--text-primary)]">{currentStreak}</p>
+          <p className="text-[10px] text-[var(--text-muted)] uppercase font-bold tracking-wider">Current Streak</p>
         </div>
-        <div className="flex-1 bg-white/5 rounded-xl p-3 text-center border border-white/5">
-          <p className="text-2xl font-black text-zinc-400">{longestStreak}</p>
-          <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Longest</p>
+        <div className="flex-1 bg-[var(--skeleton)] rounded-xl p-3 text-center border border-[var(--border)]">
+          <p className="text-2xl font-black text-[var(--text-secondary)]">{longestStreak}</p>
+          <p className="text-[10px] text-[var(--text-muted)] uppercase font-bold tracking-wider">Longest</p>
         </div>
       </div>
     </div>

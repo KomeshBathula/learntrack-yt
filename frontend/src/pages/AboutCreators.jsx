@@ -1,107 +1,165 @@
 import React from 'react';
-import { Github, Linkedin, ExternalLink, Code2, Sparkles } from 'lucide-react';
+import { Github, Linkedin, Sparkles, Heart } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const teamMembers = [
+    {
+        name: 'Tadi Kodanda Ramreddy',
+        initials: 'TR',
+        role: 'Core Developer',
+        gradient: 'from-indigo-500 to-blue-600',
+        accentBg: 'bg-indigo-500/10',
+        accentBorder: 'border-indigo-500/20',
+        accentText: 'text-indigo-400',
+        glow: 'bg-indigo-500/10',
+    },
+    {
+        name: 'Kalluri Ramteja',
+        initials: 'KR',
+        role: 'Core Developer',
+        gradient: 'from-purple-500 to-violet-600',
+        accentBg: 'bg-purple-500/10',
+        accentBorder: 'border-purple-500/20',
+        accentText: 'text-purple-400',
+        glow: 'bg-purple-500/10',
+        github: 'https://github.com/RAMTEJA87',
+    },
+    {
+        name: 'Yaswanth Chowdary',
+        initials: 'YC',
+        role: 'Core Developer',
+        gradient: 'from-emerald-500 to-teal-600',
+        accentBg: 'bg-emerald-500/10',
+        accentBorder: 'border-emerald-500/20',
+        accentText: 'text-emerald-400',
+        glow: 'bg-emerald-500/10',
+    },
+    {
+        name: 'Priyanka Vangala',
+        initials: 'PV',
+        role: 'Core Developer',
+        gradient: 'from-rose-500 to-pink-600',
+        accentBg: 'bg-rose-500/10',
+        accentBorder: 'border-rose-500/20',
+        accentText: 'text-rose-400',
+        glow: 'bg-rose-500/10',
+    },
+];
+
+const container = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.1 } },
+};
+
+const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+};
 
 const AboutCreators = () => {
     return (
-        <div className="min-h-[80vh] flex flex-col items-center justify-center py-12 px-4 space-y-16">
-
-            {/* Header Section */}
-            <div className="text-center space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-4">
+        <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="min-h-[80vh] flex flex-col items-center py-12 px-4 space-y-14 max-w-6xl mx-auto"
+        >
+            {/* Header */}
+            <motion.div variants={item} className="text-center space-y-4">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--bg-elevated)] border border-[var(--border)] backdrop-blur-sm mb-4">
                     <Sparkles className="w-4 h-4 text-purple-400" />
-                    <span className="text-xs font-semibold tracking-wider uppercase text-zinc-400">The Minds Behind</span>
+                    <span className="text-xs font-semibold tracking-wider uppercase text-[var(--text-muted)]">The Minds Behind</span>
                 </div>
-                <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-200 to-zinc-500 tracking-tight">
+                <h1 className="text-4xl md:text-6xl font-bold text-[var(--text-primary)] tracking-tight">
                     Meet the Creators
                 </h1>
-                <p className="text-zinc-400 max-w-xl mx-auto text-lg leading-relaxed">
+                <p className="text-[var(--text-muted)] max-w-xl mx-auto text-lg leading-relaxed">
                     Crafting the future of learning with passion, code, and a touch of magic.
                 </p>
-            </div>
+            </motion.div>
 
-            {/* Creators Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 w-full max-w-5xl px-4">
+            {/* Team Grid — 4 cards */}
+            <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 w-full">
+                {teamMembers.map((member) => (
+                    <div key={member.name} className="group relative">
+                        <div className={`absolute -inset-0.5 bg-gradient-to-r ${member.gradient} rounded-2xl blur opacity-0 group-hover:opacity-25 transition duration-500`} />
+                        <div className="relative h-full bg-[var(--card-bg)] border border-[var(--border)] hover:border-[var(--text-muted)] rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 group-hover:-translate-y-1">
 
-                {/* Creator 1: Ramteja Kalluri */}
-                <div className="group relative">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-                    <div className="relative h-full bg-[#0A0A0B] border border-white/10 rounded-2xl p-8 flex flex-col items-center text-center overflow-hidden">
+                            {/* Glow */}
+                            <div className={`absolute top-0 right-0 w-24 h-24 ${member.glow} rounded-full blur-3xl -mr-8 -mt-8 opacity-50`} />
 
-                        {/* Background Decoration */}
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                            {/* Avatar */}
+                            <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center mb-4 shadow-xl relative z-10 group-hover:scale-105 transition-transform duration-300`}>
+                                <span className="text-xl font-bold text-white">{member.initials}</span>
+                            </div>
 
-                        {/* Profile Image Placeholder */}
-                        <div className="w-32 h-32 rounded-full bg-gradient-to-br from-zinc-800 to-zinc-900 border-2 border-white/10 flex items-center justify-center mb-6 shadow-xl relative z-10 group-hover:scale-105 transition-transform duration-300">
-                            <span className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-indigo-400 to-purple-400">RK</span>
-                        </div>
+                            {/* Name & Role */}
+                            <h2 className="text-base font-bold text-[var(--text-primary)] mb-1.5 leading-tight">{member.name}</h2>
+                            <div className={`inline-block px-2.5 py-0.5 rounded-full ${member.accentBg} border ${member.accentBorder} ${member.accentText} text-[10px] font-semibold uppercase tracking-wider mb-4`}>
+                                {member.role}
+                            </div>
 
-                        {/* Name & Title */}
-                        <h2 className="text-2xl font-bold text-white mb-2">Ramteja Kalluri</h2>
-                        <div className="inline-block px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold mb-4">
-                            The Origin
-                        </div>
-
-                        {/* Description */}
-                        <p className="text-zinc-400 mb-8 leading-relaxed text-sm md:text-base">
-                            Visionary architect behind the platform. Bringing ideas to life through innovative design and robust engineering.
-                        </p>
-
-                        {/* Social Links */}
-                        <div className="flex items-center gap-4 mt-auto">
-                            <a href="https://github.com/RAMTEJA87" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-white/5 hover:bg-white/10 hover:text-white text-zinc-400 transition-all hover:scale-110">
-                                <Github className="w-5 h-5" />
-                            </a>
-                            <a href="#" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-white/5 hover:bg-white/10 hover:text-blue-400 text-zinc-400 transition-all hover:scale-110">
-                                <Linkedin className="w-5 h-5" />
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Creator 2: Komesh Bathula */}
-                <div className="group relative">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-                    <div className="relative h-full bg-[#0A0A0B] border border-white/10 rounded-2xl p-8 flex flex-col items-center text-center overflow-hidden">
-
-                        {/* Background Decoration */}
-                        <div className="absolute top-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl -ml-16 -mt-16"></div>
-
-                        {/* Profile Image Placeholder */}
-                        <div className="w-32 h-32 rounded-full bg-gradient-to-br from-zinc-800 to-zinc-900 border-2 border-white/10 flex items-center justify-center mb-6 shadow-xl relative z-10 group-hover:scale-105 transition-transform duration-300">
-                            <span className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-purple-400 to-pink-400">KB</span>
-                        </div>
-
-                        {/* Name & Title */}
-                        <h2 className="text-2xl font-bold text-white mb-2">Komesh Bathula</h2>
-                        <div className="inline-block px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold mb-4">
-                            Contributor
-                        </div>
-
-                        {/* Description */}
-                        <p className="text-zinc-400 mb-8 leading-relaxed text-sm md:text-base">
-                            Driving excellence through code. Enhancing user experience and pushing technical boundaries.
-                        </p>
-
-                        {/* Social Links */}
-                        <div className="flex items-center gap-4 mt-auto">
-                            <a href="https://github.com/KomeshBathula" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-white/5 hover:bg-white/10 hover:text-white text-zinc-400 transition-all hover:scale-110">
-                                <Github className="w-5 h-5" />
-                            </a>
-                            <a href="#" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-white/5 hover:bg-white/10 hover:text-blue-400 text-zinc-400 transition-all hover:scale-110">
-                                <Linkedin className="w-5 h-5" />
-                            </a>
+                            {/* Social Links */}
+                            <div className="flex items-center gap-3 mt-auto">
+                                <a
+                                    href={member.github || '#'}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-2.5 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--skeleton)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all hover:scale-110"
+                                >
+                                    <Github className="w-4 h-4" />
+                                </a>
+                                <a
+                                    href="#"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-2.5 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--skeleton)] text-[var(--text-muted)] hover:text-blue-400 transition-all hover:scale-110"
+                                >
+                                    <Linkedin className="w-4 h-4" />
+                                </a>
+                            </div>
                         </div>
                     </div>
+                ))}
+            </motion.div>
+
+            {/* Separator */}
+            <motion.div variants={item} className="w-full flex items-center gap-4">
+                <div className="flex-1 h-px bg-[var(--border)]" />
+                <div className="text-[var(--text-muted)] text-[10px] font-semibold uppercase tracking-widest">
+                    Also helped
                 </div>
+                <div className="flex-1 h-px bg-[var(--border)]" />
+            </motion.div>
 
-            </div>
+            {/* Komesh Bathula — Helper */}
+            <motion.div variants={item} className="w-full flex justify-center">
+                <div className="group bg-[var(--card-bg)] border border-[var(--border)] hover:border-[var(--text-muted)] rounded-xl px-6 py-4 flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-zinc-500 to-zinc-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
+                        <span className="text-sm font-bold text-white">KB</span>
+                    </div>
+                    <div>
+                        <h3 className="text-sm font-semibold text-[var(--text-primary)]">Komesh Bathula</h3>
+                        <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-medium">Helped with Development</p>
+                    </div>
+                    <div className="flex items-center gap-2 ml-2">
+                        <a href="https://github.com/KomeshBathula" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all hover:scale-110">
+                            <Github className="w-4 h-4" />
+                        </a>
+                        <a href="#" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-blue-400 transition-all hover:scale-110">
+                            <Linkedin className="w-4 h-4" />
+                        </a>
+                    </div>
+                </div>
+            </motion.div>
 
-            <div className="mt-12 text-center">
-                <p className="text-zinc-500 text-sm">
-                    Built with <span className="text-red-500 animate-pulse">❤</span> by the LearnTrackYT Team
+            {/* Footer */}
+            <motion.div variants={item} className="text-center pt-4">
+                <p className="text-[var(--text-muted)] text-sm flex items-center justify-center gap-1.5">
+                    Built with <Heart size={14} className="text-red-500 fill-red-500 animate-pulse" /> by the LearnTrackYT Team
                 </p>
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 };
 

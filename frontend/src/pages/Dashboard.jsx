@@ -64,10 +64,10 @@ const Dashboard = () => {
       {/* Header */}
       <header className="mb-8 md:mb-10">
         <motion.div variants={item}>
-          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
+          <h1 className="text-3xl md:text-4xl font-bold text-[var(--text-primary)] tracking-tight">
             Dashboard
           </h1>
-          <p className="text-zinc-500 mt-1.5 text-sm md:text-base">
+          <p className="text-[var(--text-muted)] mt-1.5 text-sm md:text-base">
             Welcome back — here's your learning overview.
           </p>
         </motion.div>
@@ -79,37 +79,37 @@ const Dashboard = () => {
 
           {/* Continue Learning */}
           <motion.section variants={item}>
-            <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-4">Continue Learning</h2>
+            <h2 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-4">Continue Learning</h2>
             <JumpBackIn />
           </motion.section>
 
-          {/* Stats Cards — clean, distinct colors */}
+          {/* Stats Cards */}
           <motion.section variants={item} className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
             {/* My Courses Card */}
             <Link to="/courses" className="group">
-              <div className="bg-surface/60 border border-white/[0.06] hover:border-indigo-500/30 p-5 md:p-6 rounded-2xl transition-all duration-300 hover:bg-surface/80">
+              <div className="bg-[var(--card-bg)] border border-[var(--border)] hover:border-indigo-500/30 p-5 md:p-6 rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/5">
                 <div className="flex justify-between items-start mb-4">
                   <div className="w-10 h-10 bg-indigo-500/10 flex items-center justify-center rounded-xl text-indigo-400">
                     <BookOpen size={20} />
                   </div>
-                  <ArrowRight size={16} className="text-zinc-600 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all" />
+                  <ArrowRight size={16} className="text-[var(--text-muted)] group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-0.5 group-hover:text-indigo-400 transition-colors">My Courses</h3>
-                <p className="text-zinc-500 text-sm">{dashboardData.totalCourses} active learning paths</p>
+                <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-0.5 group-hover:text-indigo-500 transition-colors">My Courses</h3>
+                <p className="text-[var(--text-muted)] text-sm">{dashboardData.totalCourses} active learning paths</p>
               </div>
             </Link>
 
             {/* Achievements Card */}
             <Link to="/profile" className="group">
-              <div className="bg-surface/60 border border-white/[0.06] hover:border-emerald-500/30 p-5 md:p-6 rounded-2xl transition-all duration-300 hover:bg-surface/80">
+              <div className="bg-[var(--card-bg)] border border-[var(--border)] hover:border-emerald-500/30 p-5 md:p-6 rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/5">
                 <div className="flex justify-between items-start mb-4">
                   <div className="w-10 h-10 bg-emerald-500/10 flex items-center justify-center rounded-xl text-emerald-400">
                     <Trophy size={20} />
                   </div>
-                  <ArrowRight size={16} className="text-zinc-600 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
+                  <ArrowRight size={16} className="text-[var(--text-muted)] group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-0.5 group-hover:text-emerald-400 transition-colors">Achievements</h3>
-                <p className="text-zinc-500 text-sm">{dashboardData.completedCourses} courses completed</p>
+                <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-0.5 group-hover:text-emerald-500 transition-colors">Achievements</h3>
+                <p className="text-[var(--text-muted)] text-sm">{dashboardData.completedCourses} courses completed</p>
               </div>
             </Link>
           </motion.section>
@@ -127,19 +127,19 @@ const Dashboard = () => {
             <StudyHeatmap />
 
             {/* Progress Card */}
-            <div className="bg-surface/60 p-5 rounded-2xl border border-white/[0.06]">
+            <div className="bg-[var(--card-bg)] p-5 rounded-2xl border border-[var(--border)]">
               <div className="flex items-center gap-2.5 mb-4">
                 <div className="w-8 h-8 bg-violet-500/10 flex items-center justify-center rounded-lg text-violet-400">
                   <Target size={16} />
                 </div>
-                <h4 className="text-sm font-semibold text-white">Your Progress</h4>
+                <h4 className="text-sm font-semibold text-[var(--text-primary)]">Your Progress</h4>
               </div>
 
               {/* Progress Ring */}
               <div className="flex items-center gap-4 mb-4">
                 <div className="relative w-14 h-14 shrink-0">
                   <svg className="w-14 h-14 -rotate-90" viewBox="0 0 56 56">
-                    <circle cx="28" cy="28" r="24" fill="none" stroke="currentColor" strokeWidth="3.5" className="text-white/[0.05]" />
+                    <circle cx="28" cy="28" r="24" fill="none" stroke="currentColor" strokeWidth="3.5" className="text-[var(--skeleton)]" />
                     <circle
                       cx="28" cy="28" r="24" fill="none" stroke="url(#progressGrad)" strokeWidth="3.5"
                       strokeLinecap="round"
@@ -154,17 +154,17 @@ const Dashboard = () => {
                     </defs>
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xs font-bold text-white">{completionRate}%</span>
+                    <span className="text-xs font-bold text-[var(--text-primary)]">{completionRate}%</span>
                   </div>
                 </div>
                 <div>
-                  <p className="text-white font-semibold">{dashboardData.completedCourses}<span className="text-zinc-500 font-normal">/{dashboardData.totalCourses}</span></p>
-                  <p className="text-zinc-500 text-xs">courses completed</p>
+                  <p className="text-[var(--text-primary)] font-semibold">{dashboardData.completedCourses}<span className="text-[var(--text-muted)] font-normal">/{dashboardData.totalCourses}</span></p>
+                  <p className="text-[var(--text-muted)] text-xs">courses completed</p>
                 </div>
               </div>
 
               {/* Encouragement */}
-              <div className="flex items-center gap-2 text-xs text-zinc-400 bg-white/[0.02] p-2.5 rounded-xl border border-white/[0.04]">
+              <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)] bg-[var(--bg-elevated)] p-2.5 rounded-xl border border-[var(--border-light)]">
                 <TrendingUp size={13} className="text-emerald-400 shrink-0" />
                 <span>Keep going — every lesson counts!</span>
               </div>

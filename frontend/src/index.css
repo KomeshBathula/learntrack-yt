@@ -3,10 +3,50 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-    --primary: 265 89% 66%;
+
+  /* Dark theme (default) */
+  :root,
+  :root.dark {
+    --bg: #09090b;
+    --bg-surface: #121215;
+    --bg-hover: rgba(255, 255, 255, 0.05);
+    --bg-elevated: rgba(255, 255, 255, 0.03);
+    --text-primary: #ffffff;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --border: rgba(255, 255, 255, 0.06);
+    --border-light: rgba(255, 255, 255, 0.04);
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --card-bg: rgba(18, 18, 21, 0.6);
+    --input-bg: rgba(0, 0, 0, 0.2);
+    --nav-bg: rgba(18, 18, 21, 0.8);
+    --overlay: rgba(0, 0, 0, 0.5);
+    --skeleton: rgba(255, 255, 255, 0.05);
+    --glow-primary: rgba(99, 102, 241, 0.08);
+    --glow-secondary: rgba(168, 85, 247, 0.08);
+    color-scheme: dark;
+  }
+
+  /* Light theme */
+  :root.light {
+    --bg: #f8f9fb;
+    --bg-surface: #ffffff;
+    --bg-hover: rgba(0, 0, 0, 0.04);
+    --bg-elevated: rgba(0, 0, 0, 0.02);
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-muted: #9ca3af;
+    --border: rgba(0, 0, 0, 0.08);
+    --border-light: rgba(0, 0, 0, 0.04);
+    --shadow-color: rgba(0, 0, 0, 0.06);
+    --card-bg: rgba(255, 255, 255, 0.8);
+    --input-bg: rgba(0, 0, 0, 0.03);
+    --nav-bg: rgba(255, 255, 255, 0.85);
+    --overlay: rgba(0, 0, 0, 0.2);
+    --skeleton: rgba(0, 0, 0, 0.06);
+    --glow-primary: rgba(99, 102, 241, 0.06);
+    --glow-secondary: rgba(168, 85, 247, 0.06);
+    color-scheme: light;
   }
 
   html {
@@ -15,29 +55,84 @@
   }
 
   body {
-    @apply bg-background text-white antialiased font-sans overflow-x-hidden;
+    background-color: var(--bg);
+    color: var(--text-primary);
+    @apply antialiased font-sans overflow-x-hidden;
     background-image:
-      radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 25%),
-      radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.08) 0%, transparent 25%);
+      radial-gradient(circle at 15% 50%, var(--glow-primary) 0%, transparent 25%),
+      radial-gradient(circle at 85% 30%, var(--glow-secondary) 0%, transparent 25%);
     background-attachment: fixed;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Smooth transition for theme switches on all elements */
+  *,
+  *::before,
+  *::after {
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-surface/40 backdrop-blur-xl border border-white/5 shadow-2xl;
+    background: var(--card-bg);
+    @apply backdrop-blur-xl shadow-2xl;
+    border: 1px solid var(--border);
   }
 
   .glass-panel {
-    @apply bg-[#151518]/60 backdrop-blur-md border border-white/[0.08];
+    background: var(--card-bg);
+    @apply backdrop-blur-md;
+    border: 1px solid var(--border);
   }
 
   .premium-gradient-text {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-200 to-zinc-400;
   }
 
+  :root.light .premium-gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-700 to-gray-500;
+  }
+
   .input-field {
-    @apply bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all text-white placeholder:text-zinc-600;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    @apply rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all;
+  }
+
+  .input-field::placeholder {
+    color: var(--text-muted);
+  }
+
+  /* Theme-aware text utilities */
+  .themed-text {
+    color: var(--text-primary);
+  }
+
+  .themed-text-secondary {
+    color: var(--text-secondary);
+  }
+
+  .themed-text-muted {
+    color: var(--text-muted);
+  }
+
+  .themed-bg {
+    background-color: var(--bg);
+  }
+
+  .themed-surface {
+    background-color: var(--bg-surface);
+  }
+
+  .themed-border {
+    border-color: var(--border);
+  }
+
+  .themed-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
   }
 }
 
@@ -51,11 +146,16 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-transparent;
+    background: transparent;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
+    background: var(--border);
+    border-radius: 9999px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
   }
 }
 
