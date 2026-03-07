@@ -4,12 +4,8 @@ set -o errexit
 
 npm install
 
-echo "Checking yt-dlp installation..."
-if ! command -v yt-dlp >/dev/null 2>&1; then
-  echo "Installing yt-dlp..."
-  # Pin to a specific vetted version for supply chain security
-  pip install yt-dlp==2024.12.13
-fi
+echo "Installing/Updating yt-dlp to latest version to bypass YouTube bot blocks..."
+pip install -U yt-dlp
 
 # Ensure yt-dlp is available before proceeding
 if ! command -v yt-dlp >/dev/null 2>&1; then
@@ -20,8 +16,7 @@ fi
 echo "yt-dlp version:"
 yt-dlp --version
 
-# Install ffmpeg (needed by yt-dlp for audio conversion)
-echo "Installing ffmpeg..."
-apt-get update && apt-get install -y --no-install-recommends ffmpeg || true
-
+# We no longer install ffmpeg here. The Render Node runtime has a read-only OS filesystem,
+# so apt-get fails. Instead, we configure yt-dlp to download raw audio without converting,
+# which avoids the need for ffmpeg entirely.
 echo "Build complete"
