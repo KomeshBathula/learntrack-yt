@@ -66,10 +66,10 @@ const GrokChat = ({ isOpen, onClose }) => {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 20, scale: 0.95 }}
                     transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                    className="fixed inset-0 md:inset-auto md:bottom-24 md:right-6 z-[100] w-full md:w-[400px] h-full md:h-[550px] bg-black/95 md:bg-[#121214]/95 backdrop-blur-2xl md:border border-white/10 md:rounded-[2rem] shadow-2xl flex flex-col overflow-hidden font-sans"
+                    className="fixed inset-0 md:inset-auto md:bottom-24 md:right-6 z-[100] w-full md:w-[400px] h-full md:h-[550px] bg-[var(--bg)]/95 md:bg-[var(--bg-surface)]/95 backdrop-blur-2xl md:border border-[var(--border)] md:rounded-[2rem] shadow-2xl flex flex-col overflow-hidden font-sans"
                 >
                     {/* Header */}
-                    <div className="px-6 py-5 border-b border-white/5 flex items-center justify-between bg-gradient-to-r from-purple-500/10 to-blue-500/10">
+                    <div className="px-6 py-5 border-b border-[var(--border)] flex items-center justify-between bg-gradient-to-r from-purple-500/10 to-blue-500/10">
                         <div className="flex items-center gap-3">
                             <div className="relative">
                                 <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-blue-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
@@ -78,13 +78,13 @@ const GrokChat = ({ isOpen, onClose }) => {
                                 <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-[#121214]"></div>
                             </div>
                             <div>
-                                <h3 className="font-bold text-white text-base tracking-wide">Study Assistant</h3>
+                                <h3 className="font-bold text-[var(--text-primary)] text-base tracking-wide">Study Assistant</h3>
                                 <p className="text-[10px] uppercase tracking-wider text-purple-400 font-bold">Online</p>
                             </div>
                         </div>
                         <button
                             onClick={onClose}
-                            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 hover:rotate-90 transition-all duration-300 text-zinc-400 hover:text-white"
+                            className="w-8 h-8 flex items-center justify-center rounded-full bg-[var(--bg-hover)] hover:bg-[var(--skeleton)] hover:rotate-90 transition-all duration-300 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                         >
                             <X size={18} />
                         </button>
@@ -107,10 +107,10 @@ const GrokChat = ({ isOpen, onClose }) => {
                                     {/* Avatar */}
                                     <div className={clsx(
                                         "w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg",
-                                        isUser ? "bg-zinc-800 border border-white/10" : "bg-gradient-to-tr from-purple-600 to-blue-600"
+                                        isUser ? "bg-[var(--skeleton)] border border-[var(--border)]" : "bg-gradient-to-tr from-purple-600 to-blue-600"
                                     )}>
                                         {isUser ? (
-                                            <span className="text-xs font-bold text-zinc-300">
+                                            <span className="text-xs font-bold text-[var(--text-secondary)]">
                                                 {user?.username?.[0]?.toUpperCase() || <UserIcon size={14} />}
                                             </span>
                                         ) : (
@@ -122,8 +122,8 @@ const GrokChat = ({ isOpen, onClose }) => {
                                     <div className={clsx(
                                         "p-3.5 rounded-2xl text-[14px] leading-relaxed shadow-xl backdrop-blur-sm border",
                                         isUser
-                                            ? "bg-zinc-800 text-white rounded-tr-sm border-white/5"
-                                            : "bg-white/5 text-zinc-100 rounded-tl-sm border-white/10 shadow-black/20"
+                                            ? "bg-primary/20 text-[var(--text-primary)] rounded-tr-sm border-primary/10"
+                                            : "bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-tl-sm border-[var(--border)]"
                                     )}>
                                         {msg.content}
                                     </div>
@@ -140,7 +140,7 @@ const GrokChat = ({ isOpen, onClose }) => {
                                 <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-blue-600 flex items-center justify-center shrink-0 shadow-lg">
                                     <Bot size={16} className="text-white" />
                                 </div>
-                                <div className="bg-white/5 border border-white/10 p-4 rounded-2xl rounded-tl-sm flex items-center gap-1.5 h-10 w-16">
+                                <div className="bg-[var(--bg-elevated)] border border-[var(--border)] p-4 rounded-2xl rounded-tl-sm flex items-center gap-1.5 h-10 w-16">
                                     <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
                                     <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
                                     <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" />
@@ -150,14 +150,14 @@ const GrokChat = ({ isOpen, onClose }) => {
                     </div>
 
                     {/* Input Area */}
-                    <div className="p-4 bg-[#121214]/90 border-t border-white/5 backdrop-blur-xl">
+                    <div className="p-4 bg-[var(--bg-surface)]/90 border-t border-[var(--border)] backdrop-blur-xl">
                         <form onSubmit={handleSend} className="relative group">
                             <input
                                 type="text"
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 placeholder={`Ask ${user?.username || 'me'} anything...`}
-                                className="w-full bg-black/40 border border-white/10 group-hover:border-white/20 rounded-2xl py-4 pl-5 pr-14 text-sm text-white focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all placeholder:text-zinc-600 shadow-inner"
+                                className="w-full bg-[var(--input-bg)] border border-[var(--border)] group-hover:border-[var(--text-muted)] rounded-2xl py-4 pl-5 pr-14 text-sm text-[var(--text-primary)] focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all placeholder:text-[var(--text-muted)] shadow-inner"
                             />
                             <button
                                 type="submit"
@@ -168,7 +168,7 @@ const GrokChat = ({ isOpen, onClose }) => {
                                 {loading && <div className="absolute inset-0 m-auto w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
                             </button>
                         </form>
-                        <p className="text-[10px] text-center text-zinc-600 mt-2">
+                        <p className="text-[10px] text-center text-[var(--text-muted)] mt-2">
                             AI can make mistakes. Check important info.
                         </p>
                     </div>

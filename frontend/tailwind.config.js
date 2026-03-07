@@ -4,17 +4,18 @@ export default {
         "./index.html",
         "./src/**/*.{js,ts,jsx,tsx}",
     ],
+    darkMode: 'class',
     theme: {
         extend: {
             fontFamily: {
                 sans: ['Inter', 'system-ui', 'sans-serif'],
             },
             colors: {
-                background: '#09090b', // Deepest black-blue
-                surface: '#121215',    // Slightly lighter
-                primary: '#6366f1',    // Indigo
-                secondary: '#a855f7',  // Purple
-                accent: '#22d3ee',     // Cyan for pops
+                background: 'var(--bg)',
+                surface: 'var(--bg-surface)',
+                primary: '#6366f1',
+                secondary: '#a855f7',
+                accent: '#22d3ee',
             },
             animation: {
                 'fade-in': 'fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1)',

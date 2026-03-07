@@ -63,16 +63,16 @@ const MotivationQuote = () => {
 
     return (
         <div className="w-full">
-            <div className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-surface/50 backdrop-blur-sm">
-                {/* Subtle left accent bar */}
+            <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card-bg)]">
+                {/* Left accent bar */}
                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-cyan-400 via-teal-400 to-emerald-400 rounded-l-2xl" />
 
                 {/* Content */}
                 <div className="px-6 py-5 md:px-7 md:py-5 pl-7">
-                    {/* Label Row */}
+                    {/* Label */}
                     <div className="flex items-center gap-2 mb-3">
                         <Quote size={14} className="text-teal-400" />
-                        <span className="text-[10px] md:text-[11px] font-semibold tracking-[0.12em] uppercase text-teal-400/70">
+                        <span className="text-[10px] md:text-[11px] font-semibold tracking-[0.12em] uppercase text-teal-500/70">
                             Daily Inspiration
                         </span>
                     </div>
@@ -87,9 +87,9 @@ const MotivationQuote = () => {
                                 exit={{ opacity: 0 }}
                                 className="space-y-2"
                             >
-                                <div className="h-[18px] md:h-5 bg-white/[0.04] rounded w-[90%] animate-pulse" />
-                                <div className="h-[18px] md:h-5 bg-white/[0.04] rounded w-[60%] animate-pulse" />
-                                <div className="h-3 bg-white/[0.04] rounded w-[25%] animate-pulse mt-3" />
+                                <div className="h-[18px] md:h-5 bg-[var(--skeleton)] rounded w-[90%] animate-pulse" />
+                                <div className="h-[18px] md:h-5 bg-[var(--skeleton)] rounded w-[60%] animate-pulse" />
+                                <div className="h-3 bg-[var(--skeleton)] rounded w-[25%] animate-pulse mt-3" />
                             </motion.div>
                         ) : (
                             <motion.div
@@ -99,10 +99,10 @@ const MotivationQuote = () => {
                                 exit={{ opacity: 0, y: -4 }}
                                 transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                             >
-                                <p className="text-[15px] md:text-base leading-relaxed text-zinc-200 italic">
+                                <p className="text-[15px] md:text-base leading-relaxed text-[var(--text-primary)] opacity-90 italic">
                                     "{quoteData?.quote}"
                                 </p>
-                                <p className="text-xs text-zinc-500 mt-2.5 font-medium">
+                                <p className="text-xs text-[var(--text-muted)] mt-2.5 font-medium">
                                     — {quoteData?.author}
                                 </p>
                             </motion.div>

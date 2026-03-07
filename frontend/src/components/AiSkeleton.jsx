@@ -12,7 +12,7 @@ const AiSkeleton = () => {
             </div>
 
             {/* Content Area */}
-            <div className="space-y-6 bg-surface/30 p-6 rounded-3xl border border-white/5">
+            <div className="space-y-6 bg-[var(--card-bg)] p-6 rounded-3xl border border-[var(--border)]">
                 {/* Summary Header */}
                 <div className="flex items-center gap-4">
                     <Skeleton className="h-12 w-12 rounded-xl" />
