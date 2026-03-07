@@ -1,9 +1,10 @@
-const { exec } = require('child_process');
+const { execFile } = require('child_process');
 const util = require('util');
-const execPromise = util.promisify(exec);
+const execFilePromise = util.promisify(execFile);
 const { Innertube, UniversalCache } = require('youtubei.js');
 const { YoutubeTranscript } = require('youtube-transcript');
 const Groq = require('groq-sdk');
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
@@ -24,6 +25,8 @@ class TranscriptService {
         console.log(`[Transcript] Processing URL: ${url}`);
         const videoId = this.extractVideoId(url);
         if (!videoId) throw new Error('Invalid YouTube URL');
+
+        const normalizedUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
         // --- STRATEGY 1: InnerTube (simulates real client) ---
         try {
@@ -73,7 +76,7 @@ class TranscriptService {
         // --- STRATEGY 3: yt-dlp Subtitles (Direct Fetch) ---
         try {
             console.log('[Transcript] Strategy 3: yt-dlp Subtitles...');
-            return await this.fetchSubtitlesWithYtDlp(url, videoId);
+            return await this.fetchSubtitlesWithYtDlp(normalizedUrl, videoId);
         } catch (err) {
             console.log(`[Transcript] Strategy 3 Failed: ${err.message}`);
             lastError = err;
@@ -82,7 +85,7 @@ class TranscriptService {
         // --- STRATEGY 4: Whisper (Audio Download via yt-dlp) ---
         try {
             console.log('[Transcript] Strategy 4: Whisper AI Fallback (via yt-dlp)...');
-            return await this.transcribeWithWhisper(url, videoId);
+            return await this.transcribeWithWhisper(normalizedUrl, videoId);
         } catch (err) {
             console.error(`[Transcript] Strategy 4 Failed: ${err.message}`);
             lastError = err;
@@ -92,19 +95,28 @@ class TranscriptService {
     }
 
     static async fetchSubtitlesWithYtDlp(url, videoId) {
-        const tempBase = path.resolve(__dirname, `temp_subs_${videoId}`);
+        const uniqueId = crypto.randomBytes(4).toString('hex');
+        const tempBase = path.resolve(__dirname, `temp_subs_${videoId}_${uniqueId}`);
 
         try {
             console.log('[Transcript] Attempting yt-dlp subtitle fetch...');
 
-            const cmd = `yt-dlp --write-sub --write-auto-sub --sub-lang "en,en-US,en-GB,en-orig" --skip-download --convert-subs srt --output "${tempBase}" "${url}"`;
+            // Fix: Use execFile with args array to prevent shell injection, and increase maxBuffer to 20MB
+            await execFilePromise('yt-dlp', [
+                '--write-sub',
+                '--write-auto-sub',
+                '--sub-lang', 'en,en-US,en-GB,en-orig',
+                '--skip-download',
+                '--convert-subs', 'srt',
+                '--output', tempBase,
+                url
+            ], { maxBuffer: 20 * 1024 * 1024 });
 
-            await execPromise(cmd);
-
-            // yt-dlp creates files like temp_subs_ID.en.srt
+            // yt-dlp creates files like tempBase.en.srt
             const dir = path.dirname(tempBase);
             const files = fs.readdirSync(dir);
-            const subFile = files.find(f => f.startsWith(`temp_subs_${videoId}`) && f.endsWith('.srt'));
+            const subFileName = path.basename(tempBase);
+            const subFile = files.find(f => f.startsWith(subFileName) && f.endsWith('.srt'));
 
             if (!subFile) {
                 throw new Error('No subtitle file downloaded');
@@ -113,7 +125,7 @@ class TranscriptService {
             const content = fs.readFileSync(path.join(dir, subFile), 'utf-8');
 
             // Cleanup immediately
-            files.filter(f => f.startsWith(`temp_subs_${videoId}`)).forEach(f => {
+            files.filter(f => f.startsWith(subFileName)).forEach(f => {
                 try { fs.unlinkSync(path.join(dir, f)); } catch (e) { }
             });
 
@@ -122,9 +134,10 @@ class TranscriptService {
         } catch (error) {
             // Cleanup on error
             const dir = path.dirname(tempBase);
+            const subFileName = path.basename(tempBase);
             if (fs.existsSync(dir)) {
                 const files = fs.readdirSync(dir);
-                files.filter(f => f.startsWith(`temp_subs_${videoId}`)).forEach(f => {
+                files.filter(f => f.startsWith(subFileName)).forEach(f => {
                     try { fs.unlinkSync(path.join(dir, f)); } catch (e) { }
                 });
             }
@@ -150,20 +163,41 @@ class TranscriptService {
     }
 
     static async transcribeWithWhisper(url, videoId) {
-        const tempPath = path.resolve(__dirname, `temp_${videoId}.mp3`);
+        const uniqueId = crypto.randomBytes(4).toString('hex');
+        // Fix: yt-dlp handles the extension when we specify audio-format, but it's safer to use an output template
+        const tempPathTemplate = path.resolve(__dirname, `temp_${videoId}_${uniqueId}.%(ext)s`);
 
         try {
             console.log('[Transcript] Downloading audio with yt-dlp...');
 
-            const cmd = `yt-dlp -x --audio-format mp3 -o "${tempPath}" "${url}"`;
+            // Fix: Use execFile to prevent shell injection, increase maxBuffer
+            await execFilePromise('yt-dlp', [
+                '-x',
+                '--audio-format', 'mp3',
+                '-o', tempPathTemplate,
+                url
+            ], { maxBuffer: 20 * 1024 * 1024 });
 
-            await execPromise(cmd);
+            // Since we used a template, find the actual generated file
+            const dir = path.dirname(tempPathTemplate);
+            const files = fs.readdirSync(dir);
+            const prefix = `temp_${videoId}_${uniqueId}`;
+            const actualFile = files.find(f => f.startsWith(prefix) && f.endsWith('.mp3'));
 
-            if (!fs.existsSync(tempPath)) {
+            if (!actualFile) {
                 throw new Error('Audio file not created by yt-dlp');
             }
 
-            console.log('[Transcript] Audio downloaded, sending to Groq Whisper...');
+            const tempPath = path.join(dir, actualFile);
+            const stats = fs.statSync(tempPath);
+
+            // Fix: Reintroduced size check
+            const maxSize = 24 * 1024 * 1024; // 24MB
+            if (stats.size > maxSize) {
+                throw new Error(`Audio file too large (${(stats.size / 1024 / 1024).toFixed(1)}MB). Max 25MB supported.`);
+            }
+
+            console.log(`[Transcript] Audio downloaded (${(stats.size / 1024 / 1024).toFixed(1)}MB), sending to Groq Whisper...`);
 
             const transcription = await groq.audio.transcriptions.create({
                 file: fs.createReadStream(tempPath),
@@ -171,12 +205,30 @@ class TranscriptService {
                 response_format: "text"
             });
 
+            // Fix: Reintroduced transcription validation
+            if (!transcription || transcription.length < 50) {
+                throw new Error('Whisper returned empty/short transcription');
+            }
+
+            console.log('[Transcript] Strategy 4 (Whisper via yt-dlp) Success!');
             return transcription;
 
         } catch (error) {
             throw error;
         } finally {
-            if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+            // Fix: Catch and swallow cleanup errors without masking main error
+            const dir = path.dirname(tempPathTemplate);
+            const prefix = `temp_${videoId}_${uniqueId}`;
+            if (fs.existsSync(dir)) {
+                const files = fs.readdirSync(dir);
+                files.filter(f => f.startsWith(prefix)).forEach(f => {
+                    try {
+                        fs.unlinkSync(path.join(dir, f));
+                    } catch (cleanupError) {
+                        console.warn(`[Transcript] Failed to handle cleanup for ${f}`, cleanupError.message);
+                    }
+                });
+            }
         }
     }
 }
