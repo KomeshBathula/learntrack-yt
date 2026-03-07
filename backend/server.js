@@ -8,11 +8,6 @@ const dotenv = require('dotenv');
 const path = require('path');
 dotenv.config();
 
-// Fix for Render: Add local bin to PATH so yt-dlp and ffmpeg are found
-const localBin = path.join(__dirname, 'bin');
-process.env.PATH = localBin + path.delimiter + process.env.PATH;
-console.log(`Updated PATH for binaries: ${localBin}`);
-
 
 const app = express();
 

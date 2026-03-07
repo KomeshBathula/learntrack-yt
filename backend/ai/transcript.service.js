@@ -2,6 +2,7 @@ const { Innertube, UniversalCache } = require('youtubei.js');
 const { YoutubeTranscript } = require('youtube-transcript');
 const Groq = require('groq-sdk');
 const ytdl = require('@distube/ytdl-core');
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
@@ -71,7 +72,7 @@ class TranscriptService {
         // --- STRATEGY 3: Whisper AI via ytdl-core (Pure Node.js — no yt-dlp needed) ---
         try {
             console.log('[Transcript] Strategy 3: Whisper AI via ytdl-core (no yt-dlp)...');
-            return await this.transcribeWithYtdlCore(url, videoId);
+            return await this.transcribeWithYtdlCore(videoId);
         } catch (err) {
             console.error(`[Transcript] Strategy 3 Failed: ${err.message}`);
             lastError = err;
@@ -84,30 +85,35 @@ class TranscriptService {
      * Strategy 3: Download audio using @distube/ytdl-core (pure Node.js),
      * then transcribe with Groq Whisper. No yt-dlp binary required.
      */
-    static async transcribeWithYtdlCore(url, videoId) {
-        const tempPath = path.resolve(__dirname, `temp_${videoId}.mp3`);
+    static async transcribeWithYtdlCore(videoId) {
+        // Unique per-request filename to avoid collisions on concurrent requests
+        const uniqueId = crypto.randomBytes(6).toString('hex');
+        // Use .webm extension — ytdl-core typically returns webm/opus for audioonly
+        const tempPath = path.resolve(__dirname, `temp_${videoId}_${uniqueId}.webm`);
+
+        let downloadStream = null;
 
         try {
             console.log('[Transcript] Downloading audio with ytdl-core...');
 
-            // Normalize URL to standard watch format for ytdl-core
             const normalizedUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
             // Download audio-only stream
             await new Promise((resolve, reject) => {
-                const stream = ytdl(normalizedUrl, {
+                downloadStream = ytdl(normalizedUrl, {
                     filter: 'audioonly',
                     quality: 'lowestaudio', // Smallest file = fastest download
                 });
 
                 const writeStream = fs.createWriteStream(tempPath);
 
-                stream.on('error', (err) => {
+                downloadStream.on('error', (err) => {
                     writeStream.destroy();
                     reject(new Error(`ytdl-core download failed: ${err.message}`));
                 });
 
                 writeStream.on('error', (err) => {
+                    downloadStream.destroy(); // Stop download on write error
                     reject(new Error(`File write failed: ${err.message}`));
                 });
 
@@ -115,7 +121,7 @@ class TranscriptService {
                     resolve();
                 });
 
-                stream.pipe(writeStream);
+                downloadStream.pipe(writeStream);
             });
 
             // Verify file was created and has content
@@ -150,6 +156,10 @@ class TranscriptService {
             return transcription;
 
         } catch (error) {
+            // Destroy download stream if still active
+            if (downloadStream && !downloadStream.destroyed) {
+                downloadStream.destroy();
+            }
             throw error;
         } finally {
             // Always clean up temp file
