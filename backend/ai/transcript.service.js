@@ -101,10 +101,11 @@ class TranscriptService {
         try {
             console.log('[Transcript] Attempting yt-dlp subtitle fetch...');
 
-            // Fix: Use execFile with args array to prevent shell injection, and increase maxBuffer to 20MB
             // Pass --js-runtimes node to solve YouTube bot checks
+            // Pass extractor args to mask as mobile client to bypass IP Bot Blocks
             await execFilePromise('yt-dlp', [
                 '--js-runtimes', 'node',
+                '--extractor-args', 'youtube:player_client=ios,android',
                 '--write-sub',
                 '--write-auto-sub',
                 '--sub-lang', 'en,en-US,en-GB,en-orig',
@@ -174,8 +175,10 @@ class TranscriptService {
 
             // Fix: Use bestaudio to download raw audio stream (webm/m4a).
             // Pass --js-runtimes node to allow yt-dlp to solve YouTube's JS bot checks using Render's Node runtime.
+            // Pass extractor args to mask as mobile client to bypass IP Bot Blocks.
             await execFilePromise('yt-dlp', [
                 '--js-runtimes', 'node',
+                '--extractor-args', 'youtube:player_client=ios,android',
                 '-f', 'bestaudio', // Download raw audio stream 
                 '-o', tempPathTemplate,
                 url
