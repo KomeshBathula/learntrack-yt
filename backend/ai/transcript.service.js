@@ -170,10 +170,10 @@ class TranscriptService {
         try {
             console.log('[Transcript] Downloading audio with yt-dlp...');
 
-            // Fix: Use execFile to prevent shell injection, increase maxBuffer
+            // Fix: Use bestaudio to download raw audio stream (webm/m4a).
+            // This avoids the need for ffmpeg conversion inside the Render container.
             await execFilePromise('yt-dlp', [
-                '-x',
-                '--audio-format', 'mp3',
+                '-f', 'bestaudio', // Download raw audio stream 
                 '-o', tempPathTemplate,
                 url
             ], { maxBuffer: 20 * 1024 * 1024 });
@@ -182,7 +182,8 @@ class TranscriptService {
             const dir = path.dirname(tempPathTemplate);
             const files = fs.readdirSync(dir);
             const prefix = `temp_${videoId}_${uniqueId}`;
-            const actualFile = files.find(f => f.startsWith(prefix) && f.endsWith('.mp3'));
+            // Find the downloaded audio file (it might be .webm or .m4a)
+            const actualFile = files.find(f => f.startsWith(prefix) && f !== path.basename(tempPathTemplate));
 
             if (!actualFile) {
                 throw new Error('Audio file not created by yt-dlp');
