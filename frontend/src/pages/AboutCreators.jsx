@@ -136,32 +136,7 @@ const AboutCreators = () => {
                 ))}
             </motion.div>
 
-            {/* Separator */}
-            <motion.div variants={item} className="w-full flex items-center gap-4">
-                <div className="flex-1 h-px bg-[var(--border)]" />
-                <div className="text-[var(--text-muted)] text-[10px] font-semibold uppercase tracking-widest">
-                    Also helped
-                </div>
-                <div className="flex-1 h-px bg-[var(--border)]" />
-            </motion.div>
 
-            {/* Komesh Bathula — Helper */}
-            <motion.div variants={item} className="w-full flex justify-center">
-                <div className="group bg-[var(--card-bg)] border border-[var(--border)] hover:border-[var(--text-muted)] rounded-xl px-6 py-4 flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-zinc-500 to-zinc-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
-                        <span className="text-sm font-bold text-white">KB</span>
-                    </div>
-                    <div>
-                        <h3 className="text-sm font-semibold text-[var(--text-primary)]">Komesh Bathula</h3>
-                        <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-medium">Helped with Development</p>
-                    </div>
-                    <div className="flex items-center gap-2 ml-2">
-                        <a href="https://github.com/KomeshBathula" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all hover:scale-110" aria-label="Komesh Bathula's GitHub">
-                            <Github className="w-4 h-4" />
-                        </a>
-                    </div>
-                </div>
-            </motion.div>
 
             {/* Footer */}
             <motion.div variants={item} className="text-center pt-4">
