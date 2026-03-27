@@ -85,7 +85,7 @@ const AiLearning = () => {
 
                         {/* Content Area */}
                         <div className="min-h-[400px]">
-                            {activeTab === 'summary' && <SummaryView summary={data.summary} />}
+                            {activeTab === 'summary' && <SummaryView summary={data.summary} videoTitle={data.videoTitle || data.title} />}
                             {activeTab === 'questions' && <QuestionView questions={data.questions} />}
                             {activeTab === 'clarifications' && <ClarificationView clarifications={data.clarifications} />}
                         </div>
