@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Download, Loader2, CheckCircle } from 'lucide-react';
 import { jsPDF } from 'jspdf';
@@ -7,10 +7,17 @@ const SummaryView = ({ summary, videoTitle }) => {
     const [downloading, setDownloading] = useState(false);
     const [downloaded, setDownloaded] = useState(false);
 
-    if (!summary) return null;
+    useEffect(() => {
+        let timeoutId;
+        if (downloaded) {
+            timeoutId = setTimeout(() => setDownloaded(false), 3000);
+        }
+        return () => {
+            if (timeoutId) clearTimeout(timeoutId);
+        };
+    }, [downloaded]);
 
-    // Debug log
-    console.log('[SummaryView] Received videoTitle:', videoTitle);
+    if (!summary) return null;
 
     const handleSavePDF = async () => {
         setDownloading(true);
@@ -157,10 +164,10 @@ const SummaryView = ({ summary, videoTitle }) => {
                 .replace(/^-|-$/g, '')
                 .substring(0, 50);
 
-            pdf.save(`${sanitizedTitle}-summary.pdf`);
+            const finalTitle = sanitizedTitle || 'video-summary';
+            pdf.save(`${finalTitle}-summary.pdf`);
 
             setDownloaded(true);
-            setTimeout(() => setDownloaded(false), 3000);
         } catch (error) {
             console.error('Error generating PDF:', error);
         } finally {

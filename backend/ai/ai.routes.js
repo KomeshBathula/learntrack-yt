@@ -6,18 +6,17 @@ const SummarizationService = require('./summarization.service');
 const QuestionService = require('./question.service');
 const ClarificationService = require('./clarification.service');
 
-// Helper to extract video ID from URL
-const extractVideoId = (url) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-};
-
 // Helper to fetch video title using YouTube oEmbed API
 const getVideoTitle = async (youtubeUrl) => {
     try {
         console.log('[VideoTitle] Fetching title from oEmbed...');
-        const response = await axios.get(`https://www.youtube.com/oembed?url=${encodeURIComponent(youtubeUrl)}&format=json`);
+        const response = await axios.get(
+            `https://www.youtube.com/oembed?url=${encodeURIComponent(youtubeUrl)}&format=json`,
+            {
+                timeout: 5000,              // fail fast if oEmbed is slow/hung
+                maxContentLength: 100 * 1024 // guard against unexpectedly large responses
+            }
+        );
         const title = response.data?.title;
         console.log('[VideoTitle] Fetched:', title);
         return title || null;

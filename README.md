@@ -128,9 +128,9 @@ npm install
 
 4. **Set up Google OAuth**
    - Go to [Google Cloud Console](https://console.cloud.google.com/)
-   - Create a new project or select existing one
-   - Enable Google+ API
-   - Create OAuth 2.0 credentials
+   - Create a new project or select an existing one
+   - Configure the OAuth consent screen (choose user type, add app details, and save/publish)
+   - Create OAuth 2.0 Client ID credentials (Application type: **Web application**)
    - Add authorized JavaScript origins:
      - `http://localhost:5173` (development)
      - Your production frontend URL
