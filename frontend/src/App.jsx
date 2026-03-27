@@ -1,8 +1,8 @@
 import { createBrowserRouter, createRoutesFromElements, RouterProvider, Route, Navigate } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
 import MyCourses from './pages/MyCourses';
 import PlaylistDetail from './pages/PlaylistDetail';
@@ -15,14 +15,26 @@ import AboutCreators from './pages/AboutCreators';
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return <LoadingScreen />;
-  return user ? children : <Navigate to="/login" />;
+  return user ? children : <Navigate to="/auth" />;
+};
+
+const PublicRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return <LoadingScreen />;
+  return user ? <Navigate to="/" /> : children;
 };
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/auth" element={
+        <PublicRoute>
+          <Auth />
+        </PublicRoute>
+      } />
+      {/* Redirect old routes to new auth page */}
+      <Route path="/login" element={<Navigate to="/auth" replace />} />
+      <Route path="/register" element={<Navigate to="/auth" replace />} />
       <Route path="/" element={
         <ProtectedRoute>
           <Layout>
@@ -71,11 +83,13 @@ const router = createBrowserRouter(
 
 function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <RouterProvider router={router} />
-      </AuthProvider>
-    </ThemeProvider>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <ThemeProvider>
+        <AuthProvider>
+          <RouterProvider router={router} />
+        </AuthProvider>
+      </ThemeProvider>
+    </GoogleOAuthProvider>
   );
 }
 

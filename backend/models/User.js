@@ -4,7 +4,10 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, required: false }, // Optional for Google OAuth users
+    googleId: { type: String, unique: true, sparse: true }, // Google OAuth ID
+    profilePicture: { type: String }, // Google profile picture URL
+    authProvider: { type: String, enum: ['local', 'google'], default: 'google' },
     createdAt: { type: Date, default: Date.now },
     lastActiveVideo: {
         playlistId: { type: mongoose.Schema.Types.ObjectId, ref: 'Playlist' },
@@ -17,17 +20,18 @@ const userSchema = new mongoose.Schema({
         score: Number,
         total: Number,
         percentage: Number,
-        topic: String, // e.g., video title or generic "AI Quiz"
+        topic: String,
         date: { type: Date, default: Date.now }
     }]
 });
 
 userSchema.pre('save', async function () {
-    if (!this.isModified('password')) return;
+    if (!this.isModified('password') || !this.password) return;
     this.password = await bcrypt.hash(this.password, 10);
 });
 
 userSchema.methods.matchPassword = async function (enteredPassword) {
+    if (!this.password) return false;
     return await bcrypt.compare(enteredPassword, this.password);
 };
 

@@ -96,10 +96,19 @@ const Profile = () => {
 
                         {/* Avatar Ring */}
                         <div className="relative shrink-0">
-                            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-[var(--bg-surface)] border-4 border-[var(--bg-surface)] shadow-2xl flex items-center justify-center relative z-10">
-                                <span className="text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary">
-                                    {user?.username?.charAt(0).toUpperCase()}
-                                </span>
+                            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-[var(--bg-surface)] border-4 border-[var(--bg-surface)] shadow-2xl flex items-center justify-center relative z-10 overflow-hidden">
+                                {user?.profilePicture ? (
+                                    <img
+                                        src={user.profilePicture}
+                                        alt={user.username}
+                                        className="w-full h-full object-cover"
+                                        referrerPolicy="no-referrer"
+                                    />
+                                ) : (
+                                    <span className="text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary">
+                                        {user?.username?.charAt(0).toUpperCase()}
+                                    </span>
+                                )}
                             </div>
                             {/* Animated Ring */}
                             <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-pulse-slow scale-110" />
