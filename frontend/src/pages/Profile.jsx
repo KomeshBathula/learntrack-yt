@@ -100,7 +100,7 @@ const Profile = () => {
                                 {user?.profilePicture ? (
                                     <img
                                         src={user.profilePicture}
-                                        alt={user.username}
+                                        alt={user?.username ? `${user.username}'s profile picture` : 'Profile picture'}
                                         className="w-full h-full object-cover"
                                         referrerPolicy="no-referrer"
                                     />

@@ -2,6 +2,9 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 
+// Create OAuth2Client once at module scope for reuse
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
@@ -10,17 +13,29 @@ const generateToken = (id) => {
 exports.googleAuth = async (req, res) => {
     const { credential } = req.body;
 
-    try {
-        const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    if (!credential) {
+        return res.status(400).json({ message: 'Google credential is required' });
+    }
 
+    if (!process.env.GOOGLE_CLIENT_ID) {
+        console.error('GOOGLE_CLIENT_ID environment variable is not configured');
+        return res.status(500).json({ message: 'Server configuration error' });
+    }
+
+    try {
         // Verify the Google token
-        const ticket = await client.verifyIdToken({
+        const ticket = await googleClient.verifyIdToken({
             idToken: credential,
             audience: process.env.GOOGLE_CLIENT_ID,
         });
 
         const payload = ticket.getPayload();
-        const { sub: googleId, email, name, picture } = payload;
+        const { sub: googleId, email, name, picture, email_verified } = payload;
+
+        // Ensure the email is present and verified before proceeding
+        if (!email || email_verified !== true) {
+            return res.status(401).json({ message: 'Google email is not verified or missing' });
+        }
 
         // Check if user exists with this Google ID or email
         let user = await User.findOne({ $or: [{ googleId }, { email }] });
@@ -53,7 +68,15 @@ exports.googleAuth = async (req, res) => {
         });
     } catch (error) {
         console.error('Google auth error:', error);
-        res.status(401).json({ message: 'Google authentication failed' });
+
+        // Differentiate between invalid credentials and server errors
+        if (error.message?.includes('Token used too late') ||
+            error.message?.includes('Invalid token') ||
+            error.message?.includes('Wrong recipient')) {
+            return res.status(401).json({ message: 'Invalid or expired Google token' });
+        }
+
+        res.status(500).json({ message: 'Authentication server error' });
     }
 };
 

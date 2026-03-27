@@ -81,9 +81,24 @@ const router = createBrowserRouter(
   )
 );
 
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
 function App() {
+  if (!googleClientId) {
+    return (
+      <div className="min-h-screen bg-zinc-900 flex items-center justify-center p-4">
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 max-w-md text-center">
+          <h1 className="text-red-500 font-bold text-xl mb-2">Configuration Error</h1>
+          <p className="text-zinc-400">
+            Google Client ID is not configured. Please set VITE_GOOGLE_CLIENT_ID in your environment variables.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+    <GoogleOAuthProvider clientId={googleClientId}>
       <ThemeProvider>
         <AuthProvider>
           <RouterProvider router={router} />

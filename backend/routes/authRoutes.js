@@ -3,8 +3,6 @@ const { googleAuth, getMe, updateProfile, saveQuizResult } = require('../control
 const { protect } = require('../middleware/authMiddleware');
 const router = express.Router();
 
-console.log('LOADING AUTH ROUTES...');
-
 // Google OAuth route
 router.post('/google', googleAuth);
 

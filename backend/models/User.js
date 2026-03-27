@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: false }, // Optional for Google OAuth users
     googleId: { type: String, unique: true, sparse: true }, // Google OAuth ID
     profilePicture: { type: String }, // Google profile picture URL
-    authProvider: { type: String, enum: ['local', 'google'], default: 'google' },
+    authProvider: { type: String, enum: ['local', 'google'], default: 'local' },
     createdAt: { type: Date, default: Date.now },
     lastActiveVideo: {
         playlistId: { type: mongoose.Schema.Types.ObjectId, ref: 'Playlist' },
