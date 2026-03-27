@@ -21,7 +21,7 @@ const Layout = ({ children }) => {
     const handleLogout = () => {
         if (window.confirm("Are You Sure To Log Out ?")) {
             logout();
-            navigate('/login');
+            navigate('/auth');
         }
     };
 

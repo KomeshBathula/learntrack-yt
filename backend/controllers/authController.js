@@ -1,44 +1,82 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
+
+// Create OAuth2Client once at module scope for reuse
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
-exports.registerUser = async (req, res) => {
-    const { username, email, password } = req.body;
-    try {
-        const userExists = await User.findOne({ email });
-        if (userExists) return res.status(400).json({ message: 'User already exists' });
+// Google OAuth login/register
+exports.googleAuth = async (req, res) => {
+    const { credential } = req.body;
 
-        const user = await User.create({ username, email, password });
-        res.status(201).json({
+    if (!credential) {
+        return res.status(400).json({ message: 'Google credential is required' });
+    }
+
+    if (!process.env.GOOGLE_CLIENT_ID) {
+        console.error('GOOGLE_CLIENT_ID environment variable is not configured');
+        return res.status(500).json({ message: 'Server configuration error' });
+    }
+
+    try {
+        // Verify the Google token
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+        const { sub: googleId, email, name, picture, email_verified } = payload;
+
+        // Ensure the email is present and verified before proceeding
+        if (!email || email_verified !== true) {
+            return res.status(401).json({ message: 'Google email is not verified or missing' });
+        }
+
+        // Check if user exists with this Google ID or email
+        let user = await User.findOne({ $or: [{ googleId }, { email }] });
+
+        if (user) {
+            // Update Google ID if user exists with email but not googleId
+            if (!user.googleId) {
+                user.googleId = googleId;
+                user.authProvider = 'google';
+                if (picture) user.profilePicture = picture;
+                await user.save();
+            }
+        } else {
+            // Create new user
+            user = await User.create({
+                username: name,
+                email,
+                googleId,
+                profilePicture: picture,
+                authProvider: 'google'
+            });
+        }
+
+        res.json({
             _id: user._id,
             username: user.username,
             email: user.email,
+            profilePicture: user.profilePicture,
             token: generateToken(user._id)
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
+        console.error('Google auth error:', error);
 
-exports.loginUser = async (req, res) => {
-    const { email, password } = req.body;
-    try {
-        const user = await User.findOne({ email });
-        if (user && (await user.matchPassword(password))) {
-            res.json({
-                _id: user._id,
-                username: user.username,
-                email: user.email,
-                token: generateToken(user._id)
-            });
-        } else {
-            res.status(401).json({ message: 'Invalid email or password' });
+        // Differentiate between invalid credentials and server errors
+        if (error.message?.includes('Token used too late') ||
+            error.message?.includes('Invalid token') ||
+            error.message?.includes('Wrong recipient')) {
+            return res.status(401).json({ message: 'Invalid or expired Google token' });
         }
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+
+        res.status(500).json({ message: 'Authentication server error' });
     }
 };
 
@@ -57,9 +95,6 @@ exports.updateProfile = async (req, res) => {
 
         if (user) {
             user.username = req.body.username || user.username;
-            if (req.body.password) {
-                user.password = req.body.password;
-            }
 
             const updatedUser = await user.save();
 
@@ -67,6 +102,7 @@ exports.updateProfile = async (req, res) => {
                 _id: updatedUser._id,
                 username: updatedUser.username,
                 email: updatedUser.email,
+                profilePicture: updatedUser.profilePicture,
                 token: generateToken(updatedUser._id)
             });
         } else {
