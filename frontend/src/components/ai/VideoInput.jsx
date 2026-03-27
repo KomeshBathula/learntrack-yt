@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Youtube, Loader2, FileText, CheckCircle } from 'lucide-react';
+import { Search, Youtube, Loader2, FileText } from 'lucide-react';
 
 const VideoInput = ({ onProcess, loading }) => {
     const [mode, setMode] = useState('url'); // 'url' or 'manual'
@@ -71,7 +71,7 @@ const VideoInput = ({ onProcess, loading }) => {
                     </h2>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-5">
 
                     {mode === 'url' ? (
                         <div className="relative group">
@@ -97,26 +97,116 @@ const VideoInput = ({ onProcess, loading }) => {
                         </div>
                     )}
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <select
-                            value={level}
-                            onChange={(e) => setLevel(e.target.value)}
-                            className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-gray-300 focus:outline-none focus:border-purple-500 transition-all appearance-none"
-                        >
-                            <option value="short">Short Summary</option>
-                            <option value="medium">Medium Summary</option>
-                            <option value="detailed">Detailed Notes</option>
-                        </select>
+                    {/* Summary Level */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-400">Summary Type</label>
+                        <div className="relative flex gap-2 bg-black/30 p-1 rounded-lg border border-white/10">
+                            <button
+                                type="button"
+                                onClick={() => setLevel('short')}
+                                className={`relative z-10 flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-colors ${
+                                    level === 'short'
+                                        ? 'text-white'
+                                        : 'text-gray-400 hover:text-gray-200'
+                                }`}
+                            >
+                                Short
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setLevel('medium')}
+                                className={`relative z-10 flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-colors ${
+                                    level === 'medium'
+                                        ? 'text-white'
+                                        : 'text-gray-400 hover:text-gray-200'
+                                }`}
+                            >
+                                Medium
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setLevel('detailed')}
+                                className={`relative z-10 flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-colors ${
+                                    level === 'detailed'
+                                        ? 'text-white'
+                                        : 'text-gray-400 hover:text-gray-200'
+                                }`}
+                            >
+                                Detailed
+                            </button>
+                            <motion.div
+                                layoutId="summary-indicator"
+                                className="absolute bg-purple-600 rounded-md shadow-md"
+                                initial={false}
+                                transition={{
+                                    type: "spring",
+                                    stiffness: 350,
+                                    damping: 30
+                                }}
+                                style={{
+                                    width: 'calc(33.333% - 0.333rem)',
+                                    height: 'calc(100% - 0.5rem)',
+                                    top: '0.25rem',
+                                    left: level === 'short' ? '0.25rem' : level === 'medium' ? 'calc(33.333% + 0.167rem)' : 'calc(66.667% + 0.083rem)'
+                                }}
+                            />
+                        </div>
+                    </div>
 
-                        <select
-                            value={language}
-                            onChange={(e) => setLanguage(e.target.value)}
-                            className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-gray-300 focus:outline-none focus:border-purple-500 transition-all appearance-none"
-                        >
-                            <option value="en">English</option>
-                            <option value="hi">Hindi (Mixed)</option>
-                            <option value="te">Telugu</option>
-                        </select>
+                    {/* Language */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-400">Language</label>
+                        <div className="relative flex gap-2 bg-black/30 p-1 rounded-lg border border-white/10">
+                            <button
+                                type="button"
+                                onClick={() => setLanguage('en')}
+                                className={`relative z-10 flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-colors ${
+                                    language === 'en'
+                                        ? 'text-white'
+                                        : 'text-gray-400 hover:text-gray-200'
+                                }`}
+                            >
+                                English
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setLanguage('hi')}
+                                className={`relative z-10 flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-colors ${
+                                    language === 'hi'
+                                        ? 'text-white'
+                                        : 'text-gray-400 hover:text-gray-200'
+                                }`}
+                            >
+                                Hindi
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setLanguage('te')}
+                                className={`relative z-10 flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-colors ${
+                                    language === 'te'
+                                        ? 'text-white'
+                                        : 'text-gray-400 hover:text-gray-200'
+                                }`}
+                            >
+                                Telugu
+                            </button>
+                            <motion.div
+                                layoutId="language-indicator"
+                                className="absolute bg-indigo-600 rounded-md shadow-md"
+                                initial={false}
+                                transition={{
+                                    type: "spring",
+                                    stiffness: 350,
+                                    damping: 30
+                                }}
+                                style={{
+                                    width: 'calc(33.333% - 0.333rem)',
+                                    height: 'calc(100% - 0.5rem)',
+                                    top: '0.25rem',
+                                    left: language === 'en' ? '0.25rem' : language === 'hi' ? 'calc(33.333% + 0.167rem)' : 'calc(66.667% + 0.083rem)'
+                                }}
+                            />
+                        </div>
                     </div>
 
                     <button
