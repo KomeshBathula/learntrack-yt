@@ -11,13 +11,21 @@ const loadingMessages = [
 
 const LoadingScreen = () => {
     const [messageIndex, setMessageIndex] = useState(0);
+    const [timeLeft, setTimeLeft] = useState(30); // Render free tier wake-up estimate
 
     useEffect(() => {
-        const interval = setInterval(() => {
+        const messageInterval = setInterval(() => {
             setMessageIndex((prev) => (prev + 1) % loadingMessages.length);
-        }, 3000); // Change message every 3 seconds
+        }, 3000);
 
-        return () => clearInterval(interval);
+        const timerInterval = setInterval(() => {
+            setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+        }, 1000);
+
+        return () => {
+            clearInterval(messageInterval);
+            clearInterval(timerInterval);
+        };
     }, []);
 
     const CurrentIcon = loadingMessages[messageIndex].icon;
@@ -40,6 +48,19 @@ const LoadingScreen = () => {
                     {/* Orbiting particles */}
                     <div className="absolute -inset-4 animate-spin-reverse">
                         <div className="w-3 h-3 bg-secondary rounded-full absolute top-0 left-1/2 -translate-x-1/2 shadow-[0_0_10px_#fff]"></div>
+                    </div>
+                </div>
+
+                {/* Wake-up Timer */}
+                <div className="flex flex-col items-center gap-1 -mt-4">
+                    <span className="text-sm font-medium text-primary animate-pulse">
+                        Estimated wake-up: {timeLeft}s
+                    </span>
+                    <div className="w-32 h-1 bg-[var(--skeleton)] rounded-full overflow-hidden">
+                        <div 
+                            className="h-full bg-primary transition-all duration-1000 ease-linear"
+                            style={{ width: `${(timeLeft / 30) * 100}%` }}
+                        ></div>
                     </div>
                 </div>
 
