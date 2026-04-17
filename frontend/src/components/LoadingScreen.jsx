@@ -9,9 +9,11 @@ const loadingMessages = [
     { text: "Preparing your learning space...", icon: Loader2 }
 ];
 
+const WAKE_UP_DURATION = 30;
+
 const LoadingScreen = () => {
     const [messageIndex, setMessageIndex] = useState(0);
-    const [timeLeft, setTimeLeft] = useState(30); // Render free tier wake-up estimate
+    const [timeLeft, setTimeLeft] = useState(WAKE_UP_DURATION); // Render free tier wake-up estimate
 
     useEffect(() => {
         const messageInterval = setInterval(() => {
@@ -19,7 +21,13 @@ const LoadingScreen = () => {
         }, 3000);
 
         const timerInterval = setInterval(() => {
-            setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+            setTimeLeft((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timerInterval);
+                    return 0;
+                }
+                return prev - 1;
+            });
         }, 1000);
 
         return () => {
@@ -53,13 +61,19 @@ const LoadingScreen = () => {
 
                 {/* Wake-up Timer */}
                 <div className="flex flex-col items-center gap-1 -mt-4">
-                    <span className="text-sm font-medium text-primary animate-pulse">
+                    <span className="text-sm font-medium text-primary animate-pulse" aria-live="off">
                         Estimated wake-up: {timeLeft}s
                     </span>
-                    <div className="w-32 h-1 bg-[var(--skeleton)] rounded-full overflow-hidden">
+                    <div 
+                        className="w-32 h-1 bg-[var(--skeleton)] rounded-full overflow-hidden"
+                        role="progressbar"
+                        aria-valuemin="0"
+                        aria-valuemax={WAKE_UP_DURATION}
+                        aria-valuenow={timeLeft}
+                    >
                         <div 
                             className="h-full bg-primary transition-all duration-1000 ease-linear"
-                            style={{ width: `${(timeLeft / 30) * 100}%` }}
+                            style={{ width: `${(timeLeft / WAKE_UP_DURATION) * 100}%` }}
                         ></div>
                     </div>
                 </div>
