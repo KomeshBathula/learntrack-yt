@@ -9,7 +9,7 @@ const loadingMessages = [
     { text: "Preparing your learning space...", icon: Loader2 }
 ];
 
-const WAKE_UP_DURATION = 30;
+const WAKE_UP_DURATION = 60;
 
 const LoadingScreen = () => {
     const [messageIndex, setMessageIndex] = useState(0);
@@ -62,7 +62,7 @@ const LoadingScreen = () => {
                 {/* Wake-up Timer */}
                 <div className="flex flex-col items-center gap-1 -mt-4">
                     <span className="text-sm font-medium text-primary animate-pulse" aria-live="off">
-                        Estimated wake-up: {timeLeft}s
+                        {timeLeft > 0 ? `Estimated wake-up: ${timeLeft}s` : "Free tier server starting... almost ready!"}
                     </span>
                     <div 
                         className="w-32 h-1 bg-[var(--skeleton)] rounded-full overflow-hidden"
@@ -73,7 +73,7 @@ const LoadingScreen = () => {
                     >
                         <div 
                             className="h-full bg-primary transition-all duration-1000 ease-linear"
-                            style={{ width: `${(timeLeft / WAKE_UP_DURATION) * 100}%` }}
+                            style={{ width: timeLeft > 0 ? `${(timeLeft / WAKE_UP_DURATION) * 100}%` : "100%" }}
                         ></div>
                     </div>
                 </div>
