@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeToggle from '../components/ThemeToggle';
 import faviconImg from '../assets/favicon.png';
+import api from '../utils/api';
 
 const Auth = () => {
     const { googleLogin } = useAuth();
@@ -12,6 +13,13 @@ const Auth = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [showAuth, setShowAuth] = useState(false);
+
+    useEffect(() => {
+        // Silent ping to wake up the Render free tier backend
+        api.get('/api/test').catch(() => {
+            // Ignore errors, we just want to trigger the server wake up
+        });
+    }, []);
 
     const handleGoogleSuccess = async (credentialResponse) => {
         setLoading(true);

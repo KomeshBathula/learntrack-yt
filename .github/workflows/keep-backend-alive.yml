@@ -1,0 +1,21 @@
+name: Keep Backend Alive
+
+on:
+  schedule:
+    # Runs every 14 minutes to just beat Render's 15-minute inactivity spin-down
+    - cron: '*/14 * * * *'
+  workflow_dispatch: # Allows you to manually trigger the script from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend API test endpoint
+        env:
+          # IMPORTANT: Replace the fallback URL below with your actual deployed Render backend URL!
+          # Alternatively, you can add a Repository Secret in GitHub named BACKEND_URL.
+          BACKEND_URL: ${{ secrets.BACKEND_URL || 'https://learntrack-backend-osr4.onrender.com' }}
+        run: |
+          echo "Pinging backend at $BACKEND_URL/api/test..."
+          curl -s "$BACKEND_URL/api/test" > /dev/null
+          echo "Ping complete. Server should remain awake!"
