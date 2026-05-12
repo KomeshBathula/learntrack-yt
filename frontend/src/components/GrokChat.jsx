@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Bot, Sparkles, User as UserIcon } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, Sparkles, User as UserIcon, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { clsx } from 'clsx';
+import { jsPDF } from 'jspdf';
 
 const GrokChat = ({ isOpen, onClose }) => {
     const { user } = useAuth();
@@ -28,6 +29,42 @@ const GrokChat = ({ isOpen, onClose }) => {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     }, [messages, isOpen]);
+
+    const handleExportPDF = () => {
+        if (messages.length === 0) return;
+        const doc = new jsPDF();
+        
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.text("AI Study Session Export", 10, 10);
+        
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+        let yPos = 20;
+
+        messages.forEach(msg => {
+            const roleName = msg.role === 'user' ? (user?.username || 'You') : 'AI Assistant';
+            doc.setFont("helvetica", "bold");
+            doc.text(`${roleName}:`, 10, yPos);
+            yPos += 7;
+
+            doc.setFont("helvetica", "normal");
+            const splitText = doc.splitTextToSize(msg.content, 180);
+            
+            // Check page boundaries dynamically
+            for (let i = 0; i < splitText.length; i++) {
+                if (yPos > 280) {
+                    doc.addPage();
+                    yPos = 10;
+                }
+                doc.text(splitText[i], 10, yPos);
+                yPos += 6;
+            }
+            yPos += 5; // Add spacing between messages
+        });
+
+        doc.save(`AI-Study-Export-${new Date().toISOString().slice(0,10)}.pdf`);
+    };
 
     const handleSend = async (e) => {
         e.preventDefault();
@@ -58,6 +95,34 @@ const GrokChat = ({ isOpen, onClose }) => {
         }
     };
 
+    const exportChat = () => {
+        const doc = new jsPDF();
+        doc.setFontSize(16);
+        doc.text("AI Study Companion - Chat Summary", 10, 10);
+        doc.setFontSize(10);
+        
+        let yPos = 20;
+        
+        messages.forEach(msg => {
+            const role = msg.role === 'user' ? 'You' : 'AI Assistant';
+            doc.setFont('helvetica', 'bold');
+            doc.text(`${role}:`, 10, yPos);
+            yPos += 5;
+            
+            doc.setFont('helvetica', 'normal');
+            const lines = doc.splitTextToSize(msg.content, 180);
+            doc.text(lines, 10, yPos);
+            yPos += (lines.length * 5) + 5;
+            
+            if (yPos > 280) {
+                doc.addPage();
+                yPos = 10;
+            }
+        });
+        
+        doc.save('ai_chat_summary.pdf');
+    };
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -82,12 +147,21 @@ const GrokChat = ({ isOpen, onClose }) => {
                                 <p className="text-[10px] uppercase tracking-wider text-purple-400 font-bold">Online</p>
                             </div>
                         </div>
-                        <button
-                            onClick={onClose}
-                            className="w-8 h-8 flex items-center justify-center rounded-full bg-[var(--bg-hover)] hover:bg-[var(--skeleton)] hover:rotate-90 transition-all duration-300 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                        >
-                            <X size={18} />
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={exportChat}
+                                title="Export Chat to PDF"
+                                className="w-8 h-8 flex items-center justify-center rounded-full bg-[var(--bg-hover)] hover:bg-[var(--skeleton)] transition-all duration-300 text-[var(--text-muted)] hover:text-primary"
+                            >
+                                <Download size={16} />
+                            </button>
+                            <button
+                                onClick={onClose}
+                                className="w-8 h-8 flex items-center justify-center rounded-full bg-[var(--bg-hover)] hover:bg-[var(--skeleton)] hover:rotate-90 transition-all duration-300 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
                     </div>
 
                     {/* Messages Area */}
