@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { jsPDF } from 'jspdf';
+import { Download } from 'lucide-react';
 import AiSkeleton from '../components/AiSkeleton';
 import VideoInput from '../components/ai/VideoInput';
 import SummaryView from '../components/ai/SummaryView';
@@ -27,6 +29,81 @@ const AiLearning = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleExportPDF = () => {
+        if (!data) return;
+        
+        const doc = new jsPDF();
+        let yPos = 10;
+        
+        const checkPageBreak = (spaceNeeded) => {
+            if (yPos + spaceNeeded > 280) {
+                doc.addPage();
+                yPos = 10;
+            }
+        };
+
+        const addSection = (title, contentLines) => {
+            checkPageBreak(20);
+            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold");
+            doc.text(title, 10, yPos);
+            yPos += 10;
+            
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "normal");
+            
+            for (let i = 0; i < contentLines.length; i++) {
+                const text = contentLines[i];
+                if (!text || text.trim() === '') {
+                    yPos += 5;
+                    continue;
+                }
+                const splitText = doc.splitTextToSize(text, 180);
+                const blockHeight = splitText.length * 6;
+                checkPageBreak(blockHeight + 5);
+                doc.text(splitText, 10, yPos);
+                yPos += blockHeight;
+            }
+            yPos += 10;
+        };
+
+        // Summary
+        if (data.summary) {
+            addSection(`Video Summary: ${data.videoTitle || 'Learning Session'}`, data.summary.split('\n'));
+        }
+
+        // Clarifications
+        if (data.clarifications && data.clarifications.length > 0) {
+            const clarLines = [];
+            data.clarifications.forEach(c => {
+                clarLines.push(`Q: ${c.question || c.concept}`);
+                clarLines.push(`A: ${c.answer || c.explanation}`);
+                clarLines.push('');
+            });
+            addSection('Concept Clarifications', clarLines);
+        }
+
+        // Questions
+        if (data.questions && data.questions.length > 0) {
+            const qLines = [];
+            data.questions.forEach((q, idx) => {
+                qLines.push(`Question ${idx + 1}: ${q.question}`);
+                if (q.options) {
+                    q.options.forEach((opt, oIdx) => {
+                        qLines.push(`  ${String.fromCharCode(65 + oIdx)}) ${opt}`);
+                    });
+                }
+                qLines.push(`Correct Answer: ${q.correctAnswer}`);
+                qLines.push(`Explanation: ${q.explanation}`);
+                qLines.push('');
+            });
+            addSection('Quiz & Practice', qLines);
+        }
+
+        const safeTitle = (data.videoTitle || 'AI-Learning-Export').replace(/[^a-z0-9]/gi, '_').substring(0, 30);
+        doc.save(`${safeTitle}.pdf`);
     };
 
     const TabButton = ({ id, label }) => (
@@ -76,6 +153,15 @@ const AiLearning = () => {
                         animate={{ opacity: 1, y: 0 }}
                         className="space-y-6"
                     >
+                        <div className="flex justify-end mb-4">
+                            <button
+                                onClick={handleExportPDF}
+                                className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg text-sm font-medium transition-colors border border-zinc-700 hover:border-zinc-600"
+                            >
+                                <Download size={16} /> Export PDF Note
+                            </button>
+                        </div>
+                        
                         {/* Tabs */}
                         <div className="flex flex-wrap gap-3 justify-center">
                             <TabButton id="summary" label="Smart Summary" />

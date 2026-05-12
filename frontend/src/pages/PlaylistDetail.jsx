@@ -20,6 +20,7 @@ const PlaylistDetail = () => {
     const [loading, setLoading] = useState(true);
     const [activeVideoId, setActiveVideoId] = useState(null);
     const [notesDirty, setNotesDirty] = useState(false);
+    const [player, setPlayer] = useState(null);
     
     // Group Modal State
     const [showGroupModal, setShowGroupModal] = useState(false);
@@ -284,6 +285,7 @@ const PlaylistDetail = () => {
                                 }}
                                 className="w-full h-full"
                                 onEnd={handleVideoEnd}
+                                onReady={(e) => setPlayer(e.target)}
                             />
                         ) : (
                             <div className="flex items-center justify-center h-full text-zinc-500">
@@ -314,6 +316,7 @@ const PlaylistDetail = () => {
                             videoTitle={activeVideo?.title}
                             isDirty={notesDirty}
                             setIsDirty={setNotesDirty}
+                            player={player}
                         />
                     )}
                 </div>
