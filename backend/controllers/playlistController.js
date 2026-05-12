@@ -287,3 +287,77 @@ exports.deletePlaylist = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// Toggle Playlist Visibility
+exports.toggleVisibility = async (req, res) => {
+    try {
+        const playlist = await Playlist.findOne({ _id: req.params.id, user: req.user._id });
+        if (!playlist) return res.status(404).json({ message: 'Playlist not found' });
+
+        playlist.isPublic = !playlist.isPublic;
+        await playlist.save();
+        res.json({ isPublic: playlist.isPublic });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Get Public Playlists
+exports.getPublicPlaylists = async (req, res) => {
+    try {
+        const playlists = await Playlist.find({ isPublic: true })
+            .sort({ importedAt: -1 })
+            .limit(50)
+            .populate('user', 'username profilePicture');
+            
+        res.json(playlists);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Clone a Public Playlist
+exports.clonePlaylist = async (req, res) => {
+    try {
+        const original = await Playlist.findOne({ _id: req.params.id, isPublic: true });
+        if (!original) return res.status(404).json({ message: 'Public playlist not found' });
+
+        // Check if already cloned
+        const existing = await Playlist.findOne({ user: req.user._id, youtubeId: original.youtubeId });
+        if (existing) {
+            return res.status(400).json({ message: 'You already have this playlist' });
+        }
+
+        // Clone Playlist
+        const newPlaylist = await Playlist.create({
+            user: req.user._id,
+            youtubeId: original.youtubeId,
+            title: original.title,
+            description: original.description,
+            thumbnail: original.thumbnail,
+            channelTitle: original.channelTitle,
+            videoCount: original.videoCount,
+            videos: original.videos,
+            totalDurationSeconds: original.totalDurationSeconds,
+            clonedFrom: original._id,
+            isPublic: false
+        });
+
+        // Copy Notes
+        const Note = require('../models/Note');
+        const notes = await Note.find({ playlist: original._id });
+        if (notes.length > 0) {
+            const notesToInsert = notes.map(n => ({
+                user: req.user._id,
+                playlist: newPlaylist._id,
+                videoId: n.videoId,
+                content: n.content
+            }));
+            await Note.insertMany(notesToInsert);
+        }
+
+        res.status(201).json(newPlaylist);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

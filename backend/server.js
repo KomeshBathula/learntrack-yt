@@ -54,11 +54,13 @@ const authRoutes = require('./routes/authRoutes');
 const playlistRoutes = require('./routes/playlistRoutes');
 const progressRoutes = require('./routes/progressRoutes');
 const noteRoutes = require('./routes/noteRoutes');
+const studyGroupRoutes = require('./routes/studyGroupRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/playlists', playlistRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/notes', noteRoutes);
+app.use('/api/study-groups', studyGroupRoutes);
 app.use('/api/ai', require('./routes/aiRoutes'));
 app.use('/api/ai-studio', require('./ai/ai.routes'));
 

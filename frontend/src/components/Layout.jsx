@@ -40,6 +40,7 @@ const Layout = ({ children }) => {
                 <div className="hidden md:flex items-center gap-8 mx-8">
                     <button onClick={() => navigate('/')} className={`font-medium transition-colors ${location.pathname === '/' ? 'text-primary' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>Dashboard</button>
                     <button onClick={() => navigate('/courses')} className={`font-medium transition-colors ${location.pathname === '/courses' ? 'text-primary' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>My Courses</button>
+                    <button onClick={() => navigate('/community')} className={`font-medium transition-colors ${location.pathname.startsWith('/community') || location.pathname.startsWith('/study-groups') ? 'text-primary' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>Community</button>
                     <button onClick={() => navigate('/ai-learning')} className={`font-medium transition-colors ${location.pathname === '/ai-learning' ? 'text-primary' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>Summary</button>
                     <button onClick={() => navigate('/profile')} className={`font-medium transition-colors ${location.pathname === '/profile' ? 'text-primary' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>Profile</button>
                 </div>
@@ -109,6 +110,14 @@ const Layout = ({ children }) => {
                 >
                     <Brain size={22} strokeWidth={location.pathname === '/ai-learning' ? 2.5 : 2} />
                     <span className="text-[10px] font-medium">Summary</span>
+                </button>
+
+                <button
+                    onClick={() => navigate('/community')}
+                    className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${location.pathname.startsWith('/community') ? 'text-primary' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
+                >
+                    <Users size={22} strokeWidth={location.pathname.startsWith('/community') ? 2.5 : 2} />
+                    <span className="text-[10px] font-medium">Community</span>
                 </button>
 
                 {/* Central AI Button */}

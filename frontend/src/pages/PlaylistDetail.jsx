@@ -4,7 +4,7 @@ import YouTube from 'react-youtube';
 import api from '../utils/api';
 import ProgressBar from '../components/ProgressBar';
 import NotesSection from '../components/NotesSection';
-import { CheckCircle, Circle, Trash2, ArrowLeft, Play } from 'lucide-react';
+import { CheckCircle, Circle, Trash2, ArrowLeft, Play, Globe, Lock, Copy, Users } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAuth } from '../context/AuthContext';
 import PlaylistSkeleton from '../components/PlaylistSkeleton';
@@ -20,6 +20,11 @@ const PlaylistDetail = () => {
     const [loading, setLoading] = useState(true);
     const [activeVideoId, setActiveVideoId] = useState(null);
     const [notesDirty, setNotesDirty] = useState(false);
+    
+    // Group Modal State
+    const [showGroupModal, setShowGroupModal] = useState(false);
+    const [groupName, setGroupName] = useState('');
+    const [groupCreating, setGroupCreating] = useState(false);
 
     // refs for scrolling to the active item
     const listRef = useRef(null);
@@ -185,6 +190,34 @@ const PlaylistDetail = () => {
         }
     };
 
+    const toggleVisibility = async () => {
+        try {
+            const res = await api.put(`/api/playlists/${id}/visibility`);
+            setPlaylist(prev => ({ ...prev, isPublic: res.data.isPublic }));
+        } catch (error) {
+            console.error('Error toggling visibility', error);
+        }
+    };
+
+    const handleCreateGroup = async () => {
+        if (!groupName.trim()) return;
+        setGroupCreating(true);
+        try {
+            const res = await api.post('/api/study-groups', {
+                name: groupName,
+                playlistId: id
+            });
+            setShowGroupModal(false);
+            setGroupName('');
+            navigate(`/study-groups/${res.data._id}`); // Or we can redirect to groups page
+        } catch (error) {
+            console.error('Error creating group', error);
+            alert('Failed to create group');
+        } finally {
+            setGroupCreating(false);
+        }
+    };
+
     const stats = useMemo(() => {
         if (!playlist) return { percent: 0, completed: 0, total: 0, remainingTime: 0 };
         const total = playlist.videos.length;
@@ -206,13 +239,31 @@ const PlaylistDetail = () => {
     return (
         <div className="animate-slide-up pb-20 max-w-[1600px] mx-auto">
             {/* Top Bar */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
                 <button onClick={() => navigate('/')} className="text-zinc-400 hover:text-white flex items-center gap-2 transition-colors">
                     <ArrowLeft size={20} /> Back to Dashboard
                 </button>
-                <button onClick={handleDelete} className="text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-colors" title="Delete Playlist">
-                    <Trash2 size={20} />
-                </button>
+                <div className="flex items-center gap-2">
+                    <button 
+                        onClick={toggleVisibility} 
+                        className={clsx("flex items-center gap-2 px-3 py-2 rounded-lg transition-colors border", playlist.isPublic ? "bg-green-500/10 border-green-500/30 text-green-500 hover:bg-green-500/20" : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:text-white")}
+                        title={playlist.isPublic ? "Public Playlist" : "Private Playlist"}
+                    >
+                        {playlist.isPublic ? <Globe size={18} /> : <Lock size={18} />}
+                        <span className="text-sm font-medium hidden sm:inline">{playlist.isPublic ? 'Public' : 'Private'}</span>
+                    </button>
+                    <button 
+                        onClick={() => setShowGroupModal(true)}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-500 hover:bg-blue-500/20 transition-colors"
+                        title="Create Study Group"
+                    >
+                        <Users size={18} />
+                        <span className="text-sm font-medium hidden sm:inline">Create Group</span>
+                    </button>
+                    <button onClick={handleDelete} className="text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-colors" title="Delete Playlist">
+                        <Trash2 size={20} />
+                    </button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -344,6 +395,45 @@ const PlaylistDetail = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Create Study Group Modal */}
+            {showGroupModal && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-center mt-10 md:items-center md:mt-0 p-4">
+                    <div className="bg-surface border border-white/10 rounded-2xl p-6 w-full max-w-md animate-scale-in">
+                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Users className="text-primary"/> Create Study Group</h2>
+                        <p className="text-zinc-400 text-sm mb-4">Invite friends to track progress together on this playlist.</p>
+                        
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Group Name</label>
+                                <input 
+                                    type="text" 
+                                    value={groupName}
+                                    onChange={e => setGroupName(e.target.value)}
+                                    placeholder="e.g. Master React 2026"
+                                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 outline-none focus:border-primary transition-colors"
+                                />
+                            </div>
+                            
+                            <div className="flex items-center gap-3 pt-2">
+                                <button
+                                    onClick={() => setShowGroupModal(false)}
+                                    className="flex-1 py-3 rounded-xl font-medium border border-zinc-700 hover:bg-zinc-800 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleCreateGroup}
+                                    disabled={groupCreating || !groupName.trim()}
+                                    className="flex-1 py-3 rounded-xl font-medium bg-primary text-white hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    {groupCreating ? 'Creating...' : 'Create Group'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
