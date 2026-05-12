@@ -21,7 +21,9 @@ const playlistSchema = new mongoose.Schema({
     videoCount: { type: Number, default: 0 },
     videos: [videoSchema],
     totalDurationSeconds: { type: Number, default: 0 },
-    importedAt: { type: Date, default: Date.now }
+    importedAt: { type: Date, default: Date.now },
+    isPublic: { type: Boolean, default: false },
+    clonedFrom: { type: mongoose.Schema.Types.ObjectId, ref: 'Playlist' }
 });
 
 module.exports = mongoose.model('Playlist', playlistSchema);

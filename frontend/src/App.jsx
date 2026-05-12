@@ -8,6 +8,8 @@ import MyCourses from './pages/MyCourses';
 import PlaylistDetail from './pages/PlaylistDetail';
 import Profile from './pages/Profile';
 import AiLearning from './pages/AiLearning';
+import Community from './pages/Community';
+import StudyGroupDetail from './pages/StudyGroupDetail';
 import Layout from './components/Layout';
 import LoadingScreen from './components/LoadingScreen';
 import AboutCreators from './pages/AboutCreators';
@@ -67,6 +69,20 @@ const router = createBrowserRouter(
         <ProtectedRoute>
           <Layout>
             <AiLearning />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/community" element={
+        <ProtectedRoute>
+          <Layout>
+            <Community />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/study-groups/:id" element={
+        <ProtectedRoute>
+          <Layout>
+            <StudyGroupDetail />
           </Layout>
         </ProtectedRoute>
       } />
