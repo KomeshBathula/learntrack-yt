@@ -68,6 +68,41 @@ const DashboardSkeleton = () => {
                 {/* Sidebar */}
                 <div className="xl:w-[340px] shrink-0 space-y-5">
                     <div className="sticky top-24 space-y-5">
+                        
+                        {/* Gamification Profile Skeleton */}
+                        <div className="bg-[var(--card-bg)] p-5 rounded-2xl border border-[var(--border)]">
+                            <div className="flex items-center gap-4 mb-4">
+                                <Skeleton className="w-12 h-12 rounded-full" />
+                                <div className="space-y-1.5 flex-1">
+                                    <Skeleton className="h-5 w-24 rounded" />
+                                    <Skeleton className="h-3 w-32 rounded" />
+                                </div>
+                            </div>
+                            <Skeleton className="h-1.5 w-full rounded-full" />
+                            <div className="mt-4 flex flex-wrap gap-2">
+                                <Skeleton className="h-6 w-16 rounded-md" />
+                                <Skeleton className="h-6 w-20 rounded-md" />
+                            </div>
+                        </div>
+
+                        {/* Weekly Goal Skeleton */}
+                        <div className="bg-[var(--card-bg)] p-5 rounded-2xl border border-[var(--border)]">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                    <Skeleton className="w-8 h-8 rounded-lg" />
+                                    <Skeleton className="h-4 w-20 rounded" />
+                                </div>
+                                <Skeleton className="w-6 h-6 rounded" />
+                            </div>
+                            <Skeleton className="h-3 w-32 rounded mb-3" />
+                            <div className="flex items-end gap-1 mb-2">
+                                <Skeleton className="h-8 w-16 rounded" />
+                                <Skeleton className="h-4 w-12 rounded mb-1" />
+                            </div>
+                            <Skeleton className="h-1.5 w-full rounded-full mb-3" />
+                            <Skeleton className="h-10 w-full rounded-xl" />
+                        </div>
+
                         {/* Heatmap Skeleton */}
                         <div className="bg-[var(--card-bg)] backdrop-blur-xl p-5 rounded-[2rem] border border-[var(--border)] h-[350px]">
                             <div className="flex justify-between items-center mb-6">

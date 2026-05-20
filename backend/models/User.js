@@ -22,7 +22,11 @@ const userSchema = new mongoose.Schema({
         percentage: Number,
         topic: String,
         date: { type: Date, default: Date.now }
-    }]
+    }],
+    exp: { type: Number, default: 0 },
+    level: { type: Number, default: 1 },
+    badges: [{ type: String }],
+    weeklyGoalMinutes: { type: Number, default: 120 }
 });
 
 userSchema.pre('save', async function () {
