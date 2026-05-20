@@ -120,8 +120,35 @@ exports.saveQuizResult = async (req, res) => {
         if (user) {
             const percentage = Math.round((score / total) * 100);
             user.quizResults.push({ score, total, percentage, topic: topic || 'AI Generated Quiz' });
+            
+            // Give EXP for completing a quiz -> 50 EXP
+            user.exp = (user.exp || 0) + 50;
+            const nextLevelExp = (user.level || 1) * 500;
+            if (user.exp >= nextLevelExp) {
+                user.level = (user.level || 1) + 1;
+                if (!user.badges.includes('Quiz Master') && user.quizResults.length >= 5) {
+                    user.badges.push('Quiz Master');
+                }
+            }
+
             await user.save();
-            res.status(200).json({ message: 'Quiz result saved', quizResults: user.quizResults });
+            res.status(200).json({ message: 'Quiz result saved', quizResults: user.quizResults, exp: user.exp, level: user.level });
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.updateWeeklyGoal = async (req, res) => {
+    const { minutes } = req.body;
+    try {
+        const user = await User.findById(req.user._id);
+        if (user) {
+            user.weeklyGoalMinutes = minutes;
+            await user.save();
+            res.json({ weeklyGoalMinutes: user.weeklyGoalMinutes });
         } else {
             res.status(404).json({ message: 'User not found' });
         }
