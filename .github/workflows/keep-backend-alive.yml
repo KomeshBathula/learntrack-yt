@@ -3,7 +3,7 @@ name: Keep Backend Alive
 on:
   schedule:
     # Runs every 14 minutes to just beat Render's 15-minute inactivity spin-down
-    - cron: '*/14 * * * *'
+    - cron: '*/5 * * * *'  
   workflow_dispatch: # Allows you to manually trigger the script from the Actions tab
 
 jobs:
