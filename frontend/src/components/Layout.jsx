@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Home, User, LayoutGrid, Brain, Users } from 'lucide-react';
+import { LogOut, Home, User, LayoutGrid, Brain, Users, Trophy, Bot } from 'lucide-react';
 import MiniPlayer from './MiniPlayer';
 import GrokChat from './GrokChat';
 import ThemeToggle from './ThemeToggle';
+import faviconImg from '../assets/favicon.png';
 
 const Layout = ({ children }) => {
     const { user, logout } = useAuth();
@@ -30,8 +31,8 @@ const Layout = ({ children }) => {
             {/* Top Navigation */}
             <nav className="fixed top-0 left-0 right-0 h-16 bg-[var(--nav-bg)] backdrop-blur-md border-b border-[var(--border)] z-50 flex items-center justify-between px-4 md:px-8">
                 <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center font-bold text-lg text-white">
-                        L
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm overflow-hidden">
+                        <img src={faviconImg} alt="LearnTrackYT" className="w-full h-full object-cover" />
                     </div>
                     <span className="font-bold text-xl tracking-tight hidden md:block text-[var(--text-primary)]">LearnTrackYT</span>
                 </div>
@@ -41,6 +42,7 @@ const Layout = ({ children }) => {
                     <button onClick={() => navigate('/')} className={`font-medium transition-colors ${location.pathname === '/' ? 'text-primary' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>Dashboard</button>
                     <button onClick={() => navigate('/courses')} className={`font-medium transition-colors ${location.pathname === '/courses' ? 'text-primary' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>My Courses</button>
                     <button onClick={() => navigate('/community')} className={`font-medium transition-colors ${location.pathname.startsWith('/community') || location.pathname.startsWith('/study-groups') ? 'text-primary' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>Community</button>
+                    <button onClick={() => navigate('/leaderboard')} className={`font-medium flex items-center gap-1.5 transition-colors ${location.pathname === '/leaderboard' ? 'text-yellow-500 drop-shadow-[0_0_5px_rgba(234,179,8,0.5)]' : 'text-yellow-500/70 hover:text-yellow-400'}`}>Leaderboard</button>
                     <button onClick={() => navigate('/ai-learning')} className={`font-medium transition-colors ${location.pathname === '/ai-learning' ? 'text-primary' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>Summary</button>
                     <button onClick={() => navigate('/profile')} className={`font-medium transition-colors ${location.pathname === '/profile' ? 'text-primary' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>Profile</button>
                 </div>
@@ -75,15 +77,15 @@ const Layout = ({ children }) => {
                 {children}
             </main>
 
-            {/* Desktop Floating Chat Button */}
+            {/* Floating Chat Button */}
             <button
                 onClick={() => setIsChatOpen(!isChatOpen)}
-                className={`hidden md:flex fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-2xl border transition-all duration-300 hover:scale-105 ${isChatOpen
+                className={`flex fixed bottom-24 md:bottom-6 right-4 md:right-6 z-50 p-3 md:p-4 rounded-full shadow-2xl border transition-all duration-300 hover:scale-105 ${isChatOpen
                     ? 'bg-zinc-800 text-white border-zinc-700'
                     : 'bg-primary text-white border-primary/50'
                     }`}
             >
-                {isChatOpen ? <LogOut className="rotate-180" size={24} /> : <div className="flex items-center gap-2 font-bold"><span className="text-lg">✨</span> <span className="text-sm">Ask AI</span></div>}
+                {isChatOpen ? <LogOut className="rotate-180" size={24} /> : <div className="flex items-center gap-2 font-bold px-1"><Bot size={20} /> <span className="text-sm">AI</span></div>}
             </button>
 
             {/* Mobile Bottom Nav */}
@@ -117,19 +119,16 @@ const Layout = ({ children }) => {
                     className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${location.pathname.startsWith('/community') ? 'text-primary' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
                 >
                     <Users size={22} strokeWidth={location.pathname.startsWith('/community') ? 2.5 : 2} />
-                    <span className="text-[10px] font-medium">Community</span>
-                </button>
+                      <span className="text-[10px] flex-shrink-0 font-medium tracking-tight">Users</span>
+                  </button>
 
-                {/* Central AI Button */}
-                <button
-                    onClick={() => setIsChatOpen(!isChatOpen)}
-                    className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${isChatOpen ? 'text-primary' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
-                >
-                    <div className={`transition-all duration-300 ${isChatOpen ? 'text-primary' : ''}`}>
-                        <span className="text-2xl leading-none" style={{ fontSize: '22px' }}>✨</span>
-                    </div>
-                    <span className="text-[10px] font-medium">Ask AI</span>
-                </button>
+                  <button
+                      onClick={() => navigate('/leaderboard')}
+                      className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${location.pathname === '/leaderboard' ? 'text-primary' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
+                  >
+                      <Trophy size={22} strokeWidth={location.pathname === '/leaderboard' ? 2.5 : 2} />
+                      <span className="text-[10px] flex-shrink-0 font-medium tracking-tight">Ranks</span>
+                  </button>
 
                 <button
                     onClick={() => navigate('/profile')}

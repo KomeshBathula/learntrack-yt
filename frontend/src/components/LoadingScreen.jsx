@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Loader2, Server, Globe, Zap, Cpu } from 'lucide-react';
+import faviconImg from '../assets/favicon.png';
 
 const loadingMessages = [
     { text: "Waking up the server...", icon: Server },
@@ -48,10 +49,12 @@ const LoadingScreen = () => {
                 {/* Visual Loader */}
                 <div className="relative">
                     <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary to-purple-600 animate-spin-slow blur-md absolute inset-0 opacity-50"></div>
-                    <div className="w-24 h-24 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border)] flex items-center justify-center relative shadow-2xl">
-                        <span className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400 animate-pulse">
-                            L
-                        </span>
+                    <div className="w-24 h-24 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border)] flex items-center justify-center relative shadow-2xl overflow-hidden p-3">
+                        <img 
+                            src={faviconImg} 
+                            alt="Logo" 
+                            className="w-full h-full object-contain animate-pulse" 
+                        />
                     </div>
                     {/* Orbiting particles */}
                     <div className="absolute -inset-4 animate-spin-reverse">

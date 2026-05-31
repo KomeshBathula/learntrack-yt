@@ -26,7 +26,10 @@ const userSchema = new mongoose.Schema({
     exp: { type: Number, default: 0 },
     level: { type: Number, default: 1 },
     badges: [{ type: String }],
-    weeklyGoalMinutes: { type: Number, default: 120 }
+    weeklyGoalMinutes: { type: Number, default: 120 },
+    currentStreak: { type: Number, default: 0 },
+    longestStreak: { type: Number, default: 0 },
+    lastStreakUpdate: { type: Date }
 });
 
 userSchema.pre('save', async function () {
