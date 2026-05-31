@@ -9,29 +9,55 @@ exports.getLeaderboard = async (req, res) => {
             .select('-password -email') // Don't expose sensitive info!
             .lean();
 
+        // 1. Get all playlists safely
+        const playlists = await Playlist.find({}, 'user videoCount videos').lean();
+        const playlistMap = {};
+        playlists.forEach(pl => {
+            const userId = pl.user.toString();
+            if (!playlistMap[userId]) playlistMap[userId] = [];
+            playlistMap[userId].push({
+                _id: pl._id.toString(),
+                videoCount: pl.videoCount || (pl.videos ? pl.videos.length : 0)
+            });
+        });
+
+        // 2. Count completed videos per user+playlist using aggregation
+        const completedProgress = await Progress.aggregate([
+            { $match: { status: 'COMPLETED' } },
+            {
+                $group: {
+                    _id: { user: "$user", playlist: "$playlist" },
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+        
+        const progressMap = {};
+        completedProgress.forEach(p => {
+            if (!p._id.user || !p._id.playlist) return;
+            const userId = p._id.user.toString();
+            const playlistId = p._id.playlist.toString();
+            if (!progressMap[userId]) progressMap[userId] = {};
+            progressMap[userId][playlistId] = p.count;
+        });
+
         // For each user, let's gather basic stats:
-        // Completed playlists, enrolled playlists, and verify the streaks securely.
-        const leaderboardData = await Promise.all(users.map(async (user) => {
-            // Count playlists this user has
-            const playlists = await Playlist.find({ user: user._id });
-            const totalPlaylists = playlists.length;
+        const leaderboardData = users.map(user => {
+            const userId = user._id.toString();
+            const userPlaylists = playlistMap[userId] || [];
+            const totalPlaylists = userPlaylists.length;
             
-            // To find completed playlists, we check how many videos they completed per playlist
             let completedPlaylists = 0;
+            const userProgress = progressMap[userId] || {};
             
-            await Promise.all(playlists.map(async (pl) => {
-                 const plVideosCount = pl.videoCount || pl.videos.length || 0;
-                 if (plVideosCount > 0) {
-                     const completedVideos = await Progress.countDocuments({
-                         user: user._id,
-                         playlist: pl._id,
-                         status: 'COMPLETED'
-                     });
-                     if (completedVideos >= plVideosCount) {
+            userPlaylists.forEach(pl => {
+                 if (pl.videoCount > 0) {
+                     const completedVideos = userProgress[pl._id] || 0;
+                     if (completedVideos >= pl.videoCount) {
                          completedPlaylists++;
                      }
                  }
-            }));
+            });
 
             // Fetch exactly from Database directly.
             let currentStreak = user.currentStreak || 0;
@@ -40,12 +66,12 @@ exports.getLeaderboard = async (req, res) => {
             // We just ensure the DB value hasn't expired simply without randomly altering max.
             if (currentStreak > 0 && user.lastStreakUpdate) {
                 const today = new Date();
-                today.setHours(0, 0, 0, 0);
+                today.setUTCHours(0, 0, 0, 0);
                 const yesterday = new Date(today);
-                yesterday.setDate(yesterday.getDate() - 1);
+                yesterday.setUTCDate(yesterday.getUTCDate() - 1);
                 
                 const lastUpdate = new Date(user.lastStreakUpdate);
-                lastUpdate.setHours(0, 0, 0, 0);
+                lastUpdate.setUTCHours(0, 0, 0, 0);
                 
                 // If they missed yesterday entirely, current defaults to 0 dynamically, DB catches up on next tick.
                 if (lastUpdate.getTime() < yesterday.getTime()) {

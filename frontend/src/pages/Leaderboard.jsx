@@ -9,7 +9,6 @@ const Leaderboard = () => {
   const { user } = useAuth();
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [timeFilter, setTimeFilter] = useState('all-time'); // 'weekly', 'all-time'
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -79,9 +78,9 @@ const Leaderboard = () => {
               className="flex flex-col items-center"
             >
               <div className="relative mb-4">
-                <div className="w-20 h-20 rounded-full border-4 border-gray-300 overflow-hidden cursor-pointer shadow-lg shadow-gray-400/20">
+                <div className="w-20 h-20 rounded-full border-4 border-gray-300 overflow-hidden shadow-lg shadow-gray-400/20">
                   {topThree[1].profilePicture ? (
-                    <img src={topThree[1].profilePicture} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    <img src={topThree[1].profilePicture} alt={`${topThree[1].username}'s profile`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   ) : (
                     <div className="w-full h-full bg-zinc-800 flex items-center justify-center text-2xl font-bold text-gray-300">
                       {topThree[1].username.charAt(0).toUpperCase()}
@@ -116,7 +115,7 @@ const Leaderboard = () => {
                 <Crown className="w-8 h-8 text-yellow-500 absolute -top-10 left-1/2 -translate-x-1/2 drop-shadow-[0_0_10px_rgba(234,179,8,0.8)] animate-pulse" />
                 <div className="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-yellow-500 overflow-hidden shadow-[0_0_30px_rgba(234,179,8,0.3)]">
                   {topThree[0].profilePicture ? (
-                    <img src={topThree[0].profilePicture} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    <img src={topThree[0].profilePicture} alt={`${topThree[0].username}'s profile`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   ) : (
                     <div className="w-full h-full bg-zinc-800 flex items-center justify-center text-3xl font-bold text-yellow-500">
                       {topThree[0].username.charAt(0).toUpperCase()}
@@ -155,7 +154,7 @@ const Leaderboard = () => {
               <div className="relative mb-4">
                 <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-amber-700 overflow-hidden shadow-lg shadow-amber-900/40">
                   {topThree[2].profilePicture ? (
-                    <img src={topThree[2].profilePicture} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    <img src={topThree[2].profilePicture} alt={`${topThree[2].username}'s profile`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   ) : (
                     <div className="w-full h-full bg-zinc-800 flex items-center justify-center text-xl font-bold text-amber-600">
                       {topThree[2].username.charAt(0).toUpperCase()}

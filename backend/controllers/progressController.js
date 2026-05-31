@@ -43,30 +43,30 @@ exports.updateProgress = async (req, res) => {
           };
 
           // Strictly verify streak and EXP updates only when a video is ticked/completed
-          if (status === "COMPLETED") {
+          if (status === "COMPLETED" && isNewlyCompleted) {
             // Streak Logic
             const today = new Date();
-            today.setHours(0, 0, 0, 0); // Normalize to local midnight
+            today.setUTCHours(0, 0, 0, 0); // Normalize to UTC midnight
             const yesterday = new Date(today);
-            yesterday.setDate(yesterday.getDate() - 1);
+            yesterday.setUTCDate(yesterday.getUTCDate() - 1);
 
             if (!userDoc.lastStreakUpdate) {
               userDoc.currentStreak = 1;
               userDoc.longestStreak = 1;
               userDoc.lastStreakUpdate = today;
             } else {
-              const lastStreakDat = new Date(userDoc.lastStreakUpdate);
-              lastStreakDat.setHours(0, 0, 0, 0);
+              const lastStreakDate = new Date(userDoc.lastStreakUpdate);
+              lastStreakDate.setUTCHours(0, 0, 0, 0);
 
-              if (lastStreakDat.getTime() === yesterday.getTime()) {
+              if (lastStreakDate.getTime() === yesterday.getTime()) {
                 // Hit streak consecutive day
                 userDoc.currentStreak = (userDoc.currentStreak || 0) + 1;
                 userDoc.lastStreakUpdate = today;
-              } else if (lastStreakDat.getTime() < yesterday.getTime()) {
+              } else if (lastStreakDate.getTime() < yesterday.getTime()) {
                 // Streak missed
                 userDoc.currentStreak = 1;
                 userDoc.lastStreakUpdate = today;
-              } else if (lastStreakDat.getTime() === today.getTime()) {
+              } else if (lastStreakDate.getTime() === today.getTime()) {
                 // Streak already bumped today; just ensure lastStreakUpdate stays precise 
                 userDoc.lastStreakUpdate = today;
               }
@@ -76,7 +76,7 @@ exports.updateProgress = async (req, res) => {
               }
             }
 
-            if (isNewlyCompleted && video) {
+            if (video) {
               // Give roughly 10 EXP per minute watched, baseline 20 EXP
               const minutes = Math.ceil((video.durationSeconds || 120) / 60);
               const expGain = 20 + minutes * 10;
