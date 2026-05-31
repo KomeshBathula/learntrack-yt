@@ -10,6 +10,7 @@ import Profile from './pages/Profile';
 import AiLearning from './pages/AiLearning';
 import Community from './pages/Community';
 import StudyGroupDetail from './pages/StudyGroupDetail';
+import Leaderboard from './pages/Leaderboard';
 import Layout from './components/Layout';
 import LoadingScreen from './components/LoadingScreen';
 import AboutCreators from './pages/AboutCreators';
@@ -76,6 +77,13 @@ const router = createBrowserRouter(
         <ProtectedRoute>
           <Layout>
             <Community />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/leaderboard" element={
+        <ProtectedRoute>
+          <Layout>
+            <Leaderboard />
           </Layout>
         </ProtectedRoute>
       } />

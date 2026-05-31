@@ -83,6 +83,22 @@ exports.googleAuth = async (req, res) => {
 exports.getMe = async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('-password');
+        
+        // Ensure effective streak is served based on today's date if user missed a day
+        if (user && user.lastStreakUpdate && user.currentStreak > 0) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            const lastUpdate = new Date(user.lastStreakUpdate);
+            lastUpdate.setHours(0, 0, 0, 0);
+            
+            if (lastUpdate.getTime() < yesterday.getTime()) {
+                // Modify in memory so it returns correct data to client (0 since it has reset)
+                user.currentStreak = 0;
+            }
+        }
         res.json(user);
     } catch (error) {
         res.status(500).json({ message: error.message });
