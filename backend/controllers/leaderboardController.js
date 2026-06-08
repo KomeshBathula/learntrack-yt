@@ -91,7 +91,7 @@ exports.getLeaderboard = async (req, res) => {
                 totalPlaylists,
                 completedPlaylists,
             };
-        }));
+        });
         
         // Final Sort: currentStreak -> longestStreak -> completedPlaylists -> alphabetical
         leaderboardData.sort((a, b) => {
