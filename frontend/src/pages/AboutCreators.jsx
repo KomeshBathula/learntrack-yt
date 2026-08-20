@@ -8,7 +8,7 @@ const teamMembers = [
         initials: 'RK',
         role: 'Core Architect & Developer',
         github: 'https://github.com/RAMTEJA87',
-        linkedin: '',
+        linkedin: 'https://linkedin.com/in/ramtejakalluri',
         gradient: 'from-indigo-600 via-slate-700 to-slate-800',
         textGradient: 'from-indigo-600 to-slate-600 dark:from-indigo-300 dark:to-slate-300',
         glow: 'bg-indigo-500/10',
@@ -16,11 +16,23 @@ const teamMembers = [
         borderAccent: 'border-slate-200 dark:border-indigo-500/20'
     },
     {
+        name: 'Ram Reddy Tadi',
+        initials: 'RR',
+        role: 'Backend Developer',
+        github: 'https://github.com/ramreddy-tadi',
+        linkedin: 'https://www.linkedin.com/in/ramreddy-tadi/',
+        gradient: 'from-emerald-600 via-teal-700 to-slate-800',
+        textGradient: 'from-emerald-600 to-teal-600 dark:from-emerald-300 dark:to-teal-300',
+        glow: 'bg-emerald-500/10',
+        bgAccent: 'bg-white dark:bg-emerald-500/5',
+        borderAccent: 'border-slate-200 dark:border-emerald-500/20'
+    },
+    {
         name: 'Komesh Bathula',
         initials: 'KB',
         role: 'Core Architect & Developer',
         github: 'https://github.com/KomeshBathula',
-        linkedin: '',
+        linkedin: 'https://linkedin.com/in/komeshbathula',
         gradient: 'from-slate-700 via-gray-700 to-zinc-800',
         textGradient: 'from-slate-700 to-gray-600 dark:from-slate-300 dark:to-gray-300',
         glow: 'bg-slate-500/10',
@@ -73,7 +85,7 @@ const AboutCreators = () => {
                 </motion.div>
 
                 {/* Creators Showcase */}
-                <motion.div variants={container} className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 w-full pt-8">
+                <motion.div variants={container} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 w-full pt-8">
                     {teamMembers.map((member) => (
                         <motion.div key={member.name} variants={fadeUp} className="group relative">
                             {/* Card Hover Glow */}
