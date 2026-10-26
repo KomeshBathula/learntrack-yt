@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Disallow authenticated private views from being indexed as separate empty shells
+Disallow: /playlist/
+Disallow: /profile
+
+# Sitemap
+Sitemap: https://learntrack-yt.vercel.app/sitemap.xml
+
